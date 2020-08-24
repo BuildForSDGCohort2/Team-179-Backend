@@ -4,11 +4,11 @@ Agri-fund, Agri-loop, Agri-vesty leverages networks for greater reach and exposu
 
 **General functionality:**
 
--  Authenticate farmers, admin & investors (Login & Logout)
--  CRUD users farmers, admin & investors (sign up, settings/update page & deleting)
--  CRUD farmer crowdfund request post (start a fundafarmer).
--  GET and display paginated lists of crowdfunding requests (individual & other requests)
--  Favorite clowdfunding requests post for the investor/users
+-   Authenticate farmers, admin & investors (Login & Logout)
+-   CRUD users farmers, admin & investors (sign up, settings/update page & deleting)
+-   CRUD farmer crowdfund request post (start a fundafarmer).
+-   GET and display paginated lists of crowdfunding requests (individual & other requests)
+-   Favorite clowdfunding requests post for the investor/users
 
 <br />
 
