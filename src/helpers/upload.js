@@ -33,9 +33,8 @@ const fileUploadHelper = (filePath) => {
       recentFile.finished = true;
     },
   });
-  return {
-    uploader: multer({ storage }),
-  };
+  const upload = { uploader: multer({ storage }) };
+  return upload;
 };
 
 module.exports = fileUploadHelper;
