@@ -1,0 +1,73 @@
+{
+  "name": "agri-fund",
+  "version": "0.0.1",
+  "description": "Agri-fund leverages networks for greater reach and exposure to collectively raise capital for farmers through investors.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src",
+    "dev": "set DEBUG=app, app:* & nodemon src",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint-init": "eslint -- --init",
+    "security-check": "npm audit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BuildForSDGCohort2/Team-179-Backend.git"
+  },
+  "keywords": [
+    "Crowdfunding",
+    "Agriculture",
+    "farmer",
+    "investors"
+  ],
+  "author": "Team-179-Group-A",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BuildForSDGCohort2/Team-179-Backend.git/issues"
+  },
+  "homepage": "https://github.com/BuildForSDGCohort2/Team-179-Backend.git#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "awesome-phonenumber": "^2.37.1",
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.5",
+    "cookie-session": "^1.4.0",
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0",
+    "helmet": "^4.1.0",
+    "hpp": "^0.2.3",
+    "http-errors": "^1.8.0",
+    "jsonwebtoken": "^8.5.1",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "pg": "^8.3.2",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.4",
+    "sequelize-cli": "^6.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.7.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "mocha": "^8.1.2",
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "delay": "2500",
+    "ignore": [
+      "node_modules/**/node_modules"
+    ]
+  }
+}
