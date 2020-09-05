@@ -22,49 +22,31 @@ module.exports = {
       allowNull: false,
     },
     password: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: false,
     },
-    image: {
-      type: Sequelize.STRING,
-    },
-    certificate_of_coduct: {
-      type: Sequelize.STRING,
-    },
-    phone_number: {
-      type: Sequelize.INTEGER,
+    salt: {
+      type: Sequelize.TEXT,
       allowNull: false,
     },
-    id_number: {
-      type: Sequelize.INTEGER,
+    token: {
+      type: Sequelize.TEXT,
       allowNull: false,
     },
-    kra_pin: {
+    emailVerificationCode: {
       type: Sequelize.STRING,
     },
-    gender: {
-      type: Sequelize.STRING,
-    },
-    date_of_birth: {
-      type: Sequelize.DATE,
-    },
-    email_verification_code: {
-      type: Sequelize.STRING,
-    },
-    email_verified: {
+    emailVerified: {
       type: Sequelize.BOOLEAN,
     },
-    email_verification_request_date: {
+    emailVerificationRequestDate: {
       type: Sequelize.DATE,
     },
-    password_reset_code: {
+    passwordResetCode: {
       type: Sequelize.STRING,
     },
-    password_reset_request_date: {
+    passwordResetRequestDate: {
       type: Sequelize.DATE,
-    },
-    bios: {
-      type: Sequelize.STRING,
     },
     createdAt: {
       allowNull: false,
