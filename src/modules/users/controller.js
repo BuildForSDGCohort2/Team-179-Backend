@@ -50,9 +50,10 @@ function UserController(User) {
       return next(err);
     }
   };
-  return {
+  const controller = {
     createUser,
   };
+  return controller;
 }
 
 module.exports = UserController;
