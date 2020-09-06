@@ -1,5 +1,7 @@
 const crypto = require('crypto');
 const PhoneNumber = require('awesome-phonenumber');
+const jwt = require('jsonwebtoken');
+const { jwtSecret } = require('../appconfigs/config')();
 
 const otherHelper = {};
 
@@ -75,5 +77,41 @@ otherHelper.paginationSendResponse = (
   if (typeof totaldata === 'number') response.totaldata = totaldata;
   return res.status(status).json(response);
 };
+
+// Hash user pasword before saving into the database
+otherHelper.hashPassword = (password) => {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
+  return { salt, hashedPassword };
+};
+
+// Validate if the user pasword match the saved password
+otherHelper.validatePassword = (password, salt, hashedPassword) => {
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('hex');
+  return hashedPassword === hash;
+};
+
+// Generate the user token.
+otherHelper.generateJWT = (id, email) => {
+  const today = new Date();
+  const expirationDate = new Date(today);
+  expirationDate.setDate(today.getDate() + 60);
+
+  return jwt.sign({
+    id,
+    email,
+    exp: parseInt(expirationDate.getTime() / 1000, 10),
+  }, jwtSecret);
+};
+
+// Filter user response details
+otherHelper.toAuthJSON = (id, firstName, lastName, email, token, createdAt) => ({
+  id,
+  firstName,
+  lastName,
+  email,
+  token,
+  createdAt,
+});
 
 module.exports = otherHelper;

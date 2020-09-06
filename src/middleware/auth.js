@@ -14,13 +14,16 @@ const auth = {
   required: jwt({
     secret: config.jwtSecret,
     userProperty: 'payload',
+    algorithms: ['RS256'],
     getToken: getTokenFromHeaders,
+    credentialsRequired: true,
   }),
   optional: jwt({
     secret: config.jwtSecret,
     userProperty: 'payload',
-    getToken: getTokenFromHeaders,
+    algorithms: ['RS256'],
     credentialsRequired: false,
+    getToken: getTokenFromHeaders,
   }),
 };
 
