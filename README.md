@@ -16,24 +16,16 @@ Agri-fund, Agri-loop, Agri-vesty leverages networks for greater reach and exposu
 
 **SETUP**
 -   Click on Fork at the top right corner
-
 -   Clone your forked repository to our local machine
-
 -   cd into the cloned folder | cd Team-179-Backend
-
 -   Create a new git branch for each new feature. This is a good practice because in the future your will further update the branch after some discussions. e.g git checkout -b feature/user-login
-
 -   Git push changes into your remote repository. Make sure you are on the branch you created for the new feature
-
 -   In your forked repository Github page, change to the branch with the new feature and then hit the "Pull Request" button
 
 **Running the project locally**
 -   npm install
-
 -   Copy env.example to .env and fill all the fields with your credentials
-
 -   npm run start
-
 -   Go to http://localhost:4000
 
 ## Documentation Translations
