@@ -16,6 +16,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const hpp = require('hpp');
 const debug = require('debug')('app:Express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 const config = require('./config')();
 const routes = require('../router');
 const otherHelper = require('../helpers/otherhelpers');
@@ -69,6 +71,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Agri-Fund API');
 });
 // API router
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

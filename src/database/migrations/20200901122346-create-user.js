@@ -29,10 +29,6 @@ module.exports = {
       type: Sequelize.TEXT,
       allowNull: false,
     },
-    token: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
     emailVerificationCode: {
       type: Sequelize.STRING,
     },
