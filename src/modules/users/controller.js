@@ -1,16 +1,17 @@
 // const debug = require('debug')('app:UserController');
 const { postUserSchema } = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
+const isEmpty = require('../../helpers/isEmpty');
 
 function UserController(User) {
   // Checks if the user exists on the database and then creates user
   const createUser = async (req, res, next) => {
+    // checks if the user submits an empty register request
+    // debug(req.body);
+    if (isEmpty(req.body)) {
+      return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the details', null);
+    }
     try {
-      // checks if the user submits an empty register request
-      // debug(req.body);
-      if (!req.body) {
-        return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the details', null);
-      }
       // validates the dat from the user
       await postUserSchema.validateAsync(req.body);
       let {
@@ -37,7 +38,6 @@ function UserController(User) {
         email,
         password,
         salt,
-        token,
         emailVerificationCode,
         emailVerified,
         emailVerificationRequestDate,
@@ -45,7 +45,7 @@ function UserController(User) {
         updatedAt,
       });
       // debug(results);
-      return otherHelper.sendResponse(res, 201, true, results, null, 'Registered successfully', null);
+      return otherHelper.sendResponse(res, 201, true, results, null, 'New user registered successfully', token);
     } catch (err) {
       return next(err);
     }

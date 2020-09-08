@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password: DataTypes.TEXT,
     salt: DataTypes.TEXT,
-    token: DataTypes.TEXT,
     emailVerificationCode: DataTypes.STRING,
     emailVerified: DataTypes.BOOLEAN,
     emailVerificationRequestDate: DataTypes.DATE,
