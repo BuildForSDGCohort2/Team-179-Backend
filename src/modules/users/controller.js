@@ -1,13 +1,14 @@
 // const debug = require('debug')('app:UserController');
 const { postUserSchema } = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
+const isEmpty = require('../../helpers/isEmpty');
 
 function UserController(User) {
   // Checks if the user exists on the database and then creates user
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
-    if (!req.body) {
+    if (isEmpty(req.body)) {
       return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the details', null);
     }
     try {

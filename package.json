@@ -29,6 +29,7 @@
   "homepage": "https://github.com/BuildForSDGCohort2/Team-179-Backend.git#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "@sendgrid/mail": "^7.2.5",
     "awesome-phonenumber": "^2.37.1",
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
@@ -47,7 +48,9 @@
     "method-override": "^3.0.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
+    "nodemailer": "^6.4.11",
     "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.3.2",
     "pg-hstore": "^2.3.3",
