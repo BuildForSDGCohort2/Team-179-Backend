@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "version": "0.0.1",
-    "title": "Agri-Vesty RESTful API",
+    "title": "Welcome Agri-Vesty API",
     "description": "Agri-vesty leverages networks for greater reach and exposure to collectively raise capital for farmers through investors",
     "license": {
       "name": "MIT",

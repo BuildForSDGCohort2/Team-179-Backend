@@ -27,5 +27,6 @@ if (!module.parent) {
     }
   });
 }
+module.exports = app;
 
 // process.on('SIGINT', () => process.exit(1));

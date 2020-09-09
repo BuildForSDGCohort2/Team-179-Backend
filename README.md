@@ -1,6 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Team-179-Backend farmers crowdfunding app codebase
 
@@ -24,8 +22,8 @@ Agri-fund, Agri-loop, Agri-vesty leverages networks for greater reach and exposu
 
 **Running the project locally**
 -   npm install
--   Copy env.example to .env and fill all the fields with your credentials
--   npm run start
+-   Copy env-example to .env and fill all the fields with your credentials
+-   npm run dev
 -   Go to http://localhost:4000
 
 ## Documentation Translations
