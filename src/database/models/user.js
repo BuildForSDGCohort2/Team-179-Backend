@@ -4,10 +4,10 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
-      type: DataTypes.STRING,
-      primaryKey: true,
+      type: DataTypes.UUID,
       allowNull: false,
-      autoIncrement: false,
+      unique: true,
+      primaryKey: true,
     },
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
@@ -22,12 +22,20 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});
-  // eslint-disable-next-line no-unused-vars
   User.associate = (models) => {
     User.hasOne(models.Profile, {
       foreignKey: 'userId',
       as: 'userProfile',
       onDelete: 'CASCADE',
+    });
+    User.belongsToMany(models.Roles, {
+      foreignKey: 'userId',
+      through: 'RolesAuth',
+      as: 'roles',
+    });
+    User.hasMany(models.Farm, {
+      foreignKey: 'userId',
+      as: 'farms',
     });
   };
   return User;

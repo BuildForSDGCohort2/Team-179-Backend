@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
-  const Profile = sequelize.define('Profile', {
+  const Profiles = sequelize.define('Profile', {
     id: {
-      type: DataTypes.STRING,
-      primaryKey: true,
+      type: DataTypes.UUID,
       allowNull: false,
-      autoIncrement: false,
+      unique: true,
+      primaryKey: true,
     },
     image: DataTypes.STRING,
     bios: DataTypes.STRING,
@@ -19,8 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE,
   }, {});
   // eslint-disable-next-line no-unused-vars
-  Profile.associate = (models) => {
+  Profiles.associate = (models) => {
     // Profile.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   };
-  return Profile;
+  return Profiles;
 };
