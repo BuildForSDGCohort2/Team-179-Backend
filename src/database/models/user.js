@@ -3,12 +3,7 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      unique: true,
-      primaryKey: true,
-    },
+    id: DataTypes.UUID,
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
@@ -36,6 +31,22 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Farm, {
       foreignKey: 'userId',
       as: 'farms',
+    });
+    User.hasMany(models.ProjectInvestments, {
+      foreignKey: 'userId',
+      as: 'invested',
+    });
+    User.hasMany(models.Project, {
+      foreignKey: 'userId',
+      as: 'projects',
+    });
+    User.hasMany(models.ProjectFavs, {
+      foreignKey: 'userId',
+      as: 'favourites',
+    });
+    User.hasMany(models.ProjectComments, {
+      foreignKey: 'userId',
+      as: 'comments',
     });
   };
   return User;

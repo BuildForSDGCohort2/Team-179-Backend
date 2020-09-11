@@ -1,15 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const Location = sequelize.define('Location', {
-    id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      unique: true,
-      primaryKey: true,
-    },
+    id: DataTypes.UUID,
     county: DataTypes.STRING,
     longitude: DataTypes.STRING,
     latitude: DataTypes.STRING,
-    geom: DataTypes.GEOMETRY('POINT'),
+    geoLocation: DataTypes.GEOMETRY('POINT'),
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});

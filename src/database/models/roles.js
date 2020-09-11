@@ -1,11 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Role = sequelize.define('Role', {
-    id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      unique: true,
-      primaryKey: true,
-    },
+    id: DataTypes.UUID,
     role: DataTypes.STRING,
     description: DataTypes.STRING,
     createdAt: DataTypes.DATE,
