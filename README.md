@@ -1,9 +1,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Team-179-Backend farmers crowdfunding app codebase
-Agri-vesty is a PostgreSQL database-backed website for crowdfunding. The aim of Agri-vesty is  help farmers to raise farming capital. In this platform, a user can either create clowdfunding farming projects or invest money towards their favourite farming projects.
+# Agri-vesty- A farmers crowdfunding app
+Agri-vesty is a PostgreSQL database-backed website for crowdfunding. The aim of Agri-vesty is to help farmers to raise farming capital. In this platform, a user can either create a crowdfunding farming project or invest money towards their favorite farming projects.
 
-In addition, the platform provides a social features where a users can leave their comment and discuss projects and like a project. Moverover, based on users activity logs and project tags. Our recommendation algorithm will recommend relevant farming projects that users might be interested in.
+In addition, the platform provides social features where users can leave their comments and discuss projects and like a project. Moreover, based on users activity logs and project tags. Our recommendation algorithm will recommend relevant farming projects that users might be interested in.
 
 **General functionality:**
 
