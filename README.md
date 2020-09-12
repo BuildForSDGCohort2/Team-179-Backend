@@ -17,6 +17,9 @@ In addition, the platform provides social features where users can leave their c
 ## Data Flow Diagram
 ![Screenshot](Information_Flow.jpg)
 
+## Database Design Schema Diagram
+![Screenshot](Information_Flow.jpg)
+
 **SETUP**
 -   Click on Fork at the top right corner
 -   Clone your forked repository to our local machine
