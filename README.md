@@ -1,18 +1,24 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# Agri-vesty- A farmers crowdfunding app
+Agri-vesty is a PostgreSQL database-backed website for crowdfunding. The aim of Agri-vesty is to help farmers to raise farming capital. In this platform, a user can either create a crowdfunding farming project or invest money towards their favorite farming projects.
 
-# Team-179-Backend farmers crowdfunding app codebase
-
-Agri-fund, Agri-loop, Agri-vesty leverages networks for greater reach and exposure to collectively raise capital for farmers through investors.
+In addition, the platform provides social features where users can leave their comments and discuss projects and like a project. Moreover, based on users activity logs and project tags. Our recommendation algorithm will recommend relevant farming projects that users might be interested in.
 
 **General functionality:**
 
--   Authenticate farmers, admin & investors (Login & Logout)
--   CRUD users farmers, admin & investors (sign up, settings/update page & deleting)
--   CRUD farmer crowdfund request post (start a fundafarmer).
--   GET and display paginated lists of crowdfunding requests (individual & other requests)
--   Favorite clowdfunding requests post for the investor/users
+-   Authenticate users (Login & Logout)
+-   Create, Read, Update and Delete users (sign up, settings/updating & deleting profile )
+-   Create, Read, Update and Delete farm and location.
+-   Create, Update and Delete farming projects, comments, favourites.
+-   GET and display paginated lists of crowdfunding farming project (individual & other requests)
+-   Users can favorite and comment on clowdfunding farming project.
+
+## Data Flow Diagram
+![Screenshot](Information_Flow.jpg)
+
+## Database Design Schema Diagram
+![Screenshot](Information_Flow.jpg)
 
 **SETUP**
 -   Click on Fork at the top right corner
@@ -24,8 +30,8 @@ Agri-fund, Agri-loop, Agri-vesty leverages networks for greater reach and exposu
 
 **Running the project locally**
 -   npm install
--   Copy env.example to .env and fill all the fields with your credentials
--   npm run start
+-   Copy env-example to .env and fill all the fields with your credentials
+-   npm run dev
 -   Go to http://localhost:4000
 
 ## Documentation Translations

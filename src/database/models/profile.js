@@ -1,26 +1,27 @@
+/**
+ * Profile model file for structuring the additional user data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
-  const Profile = sequelize.define('Profile', {
+  const Profiles = sequelize.define('Profile', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       primaryKey: true,
-      allowNull: false,
-      autoIncrement: false,
     },
-    image: DataTypes.STRING,
+    images: DataTypes.ARRAY(DataTypes.STRING),
     bios: DataTypes.STRING,
     phoneNumber: DataTypes.NUMBER,
+    userId: DataTypes.UUID,
     gender: DataTypes.STRING,
     dateOfBirth: DataTypes.DATE,
     idNumber: DataTypes.NUMBER,
     kraPin: DataTypes.STRING,
-    role: DataTypes.ARRAY(DataTypes.STRING),
     certificateOfConduct: DataTypes.STRING,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});
   // eslint-disable-next-line no-unused-vars
-  Profile.associate = (models) => {
+  Profiles.associate = (models) => {
     // Profile.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   };
-  return Profile;
+  return Profiles;
 };

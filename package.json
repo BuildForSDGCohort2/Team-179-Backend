@@ -1,14 +1,19 @@
 {
   "name": "agri-fund",
   "version": "0.0.1",
-  "description": "Agri-fund leverages networks for greater reach and exposure to collectively raise capital for farmers through investors.",
+  "description": "Agri-vesty leverages networks for greater reach and exposure to collectively raise capital for farmers through investors.",
   "main": "index.js",
   "scripts": {
     "start": "node src",
-    "dev": "set DEBUG=app, app:* & nodemon src",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "set DEBUG=app, app:* & nodemon src",
+    "dev":"npm-run-all --parallel test:watch server",
+    "test": "nyc mocha --reporter progress \"src/**/*.spec.js\"",
+    "test:watch": "npm run test -- --watch",
     "lint": "eslint .",
+    "lint-fix": "npm run lint -- --fix",
+    "pretest": "npm run lint",
     "lint-init": "eslint -- --init",
+    "share": "lt --port 4000",
     "security-check": "npm audit"
   },
   "repository": {
@@ -64,8 +69,11 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
     "faker": "^5.1.0",
+    "localtunnel": "^2.0.0",
     "mocha": "^8.1.2",
     "nodemon": "^2.0.4",
+    "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
     "sinon": "^9.0.3",
     "supertest": "^4.0.2"
   },

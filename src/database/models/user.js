@@ -1,13 +1,11 @@
 /**
- * User model file for structuring the data in to the database.
+ * User model file for structuring the user data in to the database.
  */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       primaryKey: true,
-      allowNull: false,
-      autoIncrement: false,
     },
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
@@ -22,12 +20,36 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});
-  // eslint-disable-next-line no-unused-vars
   User.associate = (models) => {
     User.hasOne(models.Profile, {
       foreignKey: 'userId',
       as: 'userProfile',
       onDelete: 'CASCADE',
+    });
+    User.belongsToMany(models.Roles, {
+      foreignKey: 'userId',
+      through: 'RolesAuth',
+      as: 'roles',
+    });
+    User.hasMany(models.Farm, {
+      foreignKey: 'userId',
+      as: 'farms',
+    });
+    User.hasMany(models.ProjectInvestments, {
+      foreignKey: 'userId',
+      as: 'invested',
+    });
+    User.hasMany(models.Project, {
+      foreignKey: 'userId',
+      as: 'projects',
+    });
+    User.hasMany(models.ProjectFavs, {
+      foreignKey: 'userId',
+      as: 'favourites',
+    });
+    User.hasMany(models.ProjectComments, {
+      foreignKey: 'userId',
+      as: 'comments',
     });
   };
   return User;
