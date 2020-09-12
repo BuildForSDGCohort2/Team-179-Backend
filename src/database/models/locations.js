@@ -1,6 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const Location = sequelize.define('Location', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     county: DataTypes.STRING,
     longitude: DataTypes.STRING,
     latitude: DataTypes.STRING,

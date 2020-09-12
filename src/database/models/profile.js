@@ -1,14 +1,20 @@
+/**
+ * Profile model file for structuring the additional user data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Profiles = sequelize.define('Profile', {
-    id: DataTypes.UUID,
-    image: DataTypes.STRING,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
+    images: DataTypes.ARRAY(DataTypes.STRING),
     bios: DataTypes.STRING,
     phoneNumber: DataTypes.NUMBER,
+    userId: DataTypes.UUID,
     gender: DataTypes.STRING,
     dateOfBirth: DataTypes.DATE,
     idNumber: DataTypes.NUMBER,
     kraPin: DataTypes.STRING,
-    role: DataTypes.ARRAY(DataTypes.STRING),
     certificateOfConduct: DataTypes.STRING,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

@@ -1,6 +1,12 @@
+/**
+ * Roles auth model file for structuring the User and role relaionship in the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const RolesAuth = sequelize.define('RolesAuth', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     userId: DataTypes.UUID,
     roleId: DataTypes.UUID,
     createdAt: DataTypes.DATE,

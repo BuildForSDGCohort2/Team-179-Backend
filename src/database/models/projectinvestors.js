@@ -1,6 +1,12 @@
+/**
+ * Project Investmet model file for structuring the prject invested data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const ProjectInvestors = sequelize.define('ProjectInvestments', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     projectId: DataTypes.UUID,
     userId: DataTypes.UUID,
     amountInvested: DataTypes.DECIMAL,

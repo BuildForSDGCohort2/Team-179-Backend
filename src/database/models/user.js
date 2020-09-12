@@ -1,9 +1,12 @@
 /**
- * User model file for structuring the data in to the database.
+ * User model file for structuring the user data in to the database.
  */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,

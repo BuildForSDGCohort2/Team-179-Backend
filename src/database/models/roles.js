@@ -1,6 +1,12 @@
+/**
+ * Roles model file for structuring the roles data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Role = sequelize.define('Role', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     role: DataTypes.STRING,
     description: DataTypes.STRING,
     createdAt: DataTypes.DATE,

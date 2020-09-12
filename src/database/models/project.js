@@ -1,6 +1,13 @@
+/**
+ * Project model file for structuring the
+ * Projects data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const Project = sequelize.define('Project', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
     farmerId: DataTypes.UUID,

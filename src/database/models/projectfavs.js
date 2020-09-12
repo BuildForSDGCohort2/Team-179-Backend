@@ -1,6 +1,13 @@
+/**
+ * Project Favorite model file for structuring the Favorited
+ * Projects by user data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const ProjectFavs = sequelize.define('ProjectFavs', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     projectId: DataTypes.UUID,
     userId: DataTypes.UUID,
     favourite: DataTypes.BOOLEAN,

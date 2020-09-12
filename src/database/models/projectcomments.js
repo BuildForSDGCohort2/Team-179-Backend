@@ -1,6 +1,13 @@
+/**
+ * Project Comments model file for structuring the comments
+ * of a projects by user data in to the database.
+ */
 module.exports = (sequelize, DataTypes) => {
   const ProjectComments = sequelize.define('ProjectComments', {
-    id: DataTypes.UUID,
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
     projectId: DataTypes.UUID,
     userId: DataTypes.UUID,
     body: DataTypes.TEXT,
