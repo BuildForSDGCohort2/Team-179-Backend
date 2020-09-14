@@ -71,7 +71,7 @@ require('./passport')(app);
 //   res.send('Welcome to Agri-Fund API');
 // });
 // API router
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

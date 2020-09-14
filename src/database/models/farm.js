@@ -3,10 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Farm = sequelize.define('Farm', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     farmerId: DataTypes.STRING,
     locationId: DataTypes.UUID,
     images: DataTypes.ARRAY(DataTypes.STRING),

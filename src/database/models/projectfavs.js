@@ -4,10 +4,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectFavs = sequelize.define('ProjectFavs', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     projectId: DataTypes.UUID,
     userId: DataTypes.UUID,
     favourite: DataTypes.BOOLEAN,

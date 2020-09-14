@@ -4,10 +4,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Project = sequelize.define('Project', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
     farmerId: DataTypes.UUID,

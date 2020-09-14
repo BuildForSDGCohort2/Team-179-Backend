@@ -3,10 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
@@ -26,10 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       as: 'userProfile',
       onDelete: 'CASCADE',
     });
-    User.belongsToMany(models.Roles, {
-      foreignKey: 'userId',
+    User.belongsToMany(models.Role, {
       through: 'RolesAuth',
       as: 'roles',
+      foreignKey: 'userId',
+      otherKey: 'roleId',
     });
     User.hasMany(models.Farm, {
       foreignKey: 'userId',
