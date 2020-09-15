@@ -3,10 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const RolesAuth = sequelize.define('RolesAuth', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     userId: DataTypes.UUID,
     roleId: DataTypes.UUID,
     createdAt: DataTypes.DATE,

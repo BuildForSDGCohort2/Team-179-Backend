@@ -18,7 +18,7 @@ In addition, the platform provides social features where users can leave their c
 ![Screenshot](Information_Flow.jpg)
 
 ## Database Design Schema Diagram
-![Screenshot](Information_Flow.jpg)
+![Screenshot](database_flow.jpg)
 
 **SETUP**
 -   Click on Fork at the top right corner

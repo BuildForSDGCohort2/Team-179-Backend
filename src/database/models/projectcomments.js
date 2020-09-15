@@ -4,10 +4,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectComments = sequelize.define('ProjectComments', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     projectId: DataTypes.UUID,
     userId: DataTypes.UUID,
     body: DataTypes.TEXT,

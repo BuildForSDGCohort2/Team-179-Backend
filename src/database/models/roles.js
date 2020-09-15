@@ -3,10 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Role = sequelize.define('Role', {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-    },
     role: DataTypes.STRING,
     description: DataTypes.STRING,
     createdAt: DataTypes.DATE,
@@ -14,9 +10,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Role.associate = (models) => {
     Role.belongsToMany(models.User, {
-      foreignKey: 'roleId',
       through: 'RolesAuth',
       as: 'user',
+      foreignKey: 'roleId',
+      otherKey: 'userId',
     });
   };
   return Role;

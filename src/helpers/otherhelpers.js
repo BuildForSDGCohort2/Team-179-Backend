@@ -105,13 +105,18 @@ otherHelper.generateJWT = (id, email) => {
 };
 
 // Filter user response details
-otherHelper.toAuthJSON = (id, firstName, lastName, email, token, createdAt) => ({
-  id,
-  firstName,
-  lastName,
-  email,
-  token,
-  createdAt,
-});
+otherHelper.toAuthJSON = (results) => {
+  const {
+    id, firstName, lastName, email, createdAt,
+  } = results;
+  const user = {
+    id,
+    firstName,
+    lastName,
+    email,
+    createdAt,
+  };
+  return user;
+};
 
 module.exports = otherHelper;

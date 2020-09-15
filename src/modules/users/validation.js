@@ -17,5 +17,15 @@ const postUserSchema = Joi.object({
     .max(35)
     .required(),
   confirmPassword: Joi.ref('password'),
+  roles: Joi.array().items(Joi.string()),
 });
-module.exports = { postUserSchema };
+const postRolechema = Joi.object({
+  role: Joi.string()
+    .min(3)
+    .max(30)
+    .required(),
+  description: Joi.string()
+    .min(3)
+    .max(500),
+});
+module.exports = { postUserSchema, postRolechema };
