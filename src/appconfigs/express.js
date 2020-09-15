@@ -20,7 +20,8 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const config = require('./config')();
 const routes = require('../router');
-const otherHelper = require('../helpers/otherhelpers');
+// const otherHelper = require('../helpers/otherhelpers');
+const errorHelper = require('../helpers/errorHelper');
 
 const app = express();
 const isProduction = config.env === 'production';
@@ -66,10 +67,10 @@ app.use(compress());
 
 // Passport Config
 require('./passport')(app);
-// // Welcome message
-// app.get('/', (req, res) => {
-//   res.send('Welcome to Agri-Fund API');
-// });
+// Welcome message
+app.get('/', (req, res) => {
+  res.send('Welcome to Agri-Fund API');
+});
 // API router
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
@@ -79,18 +80,17 @@ app.use((req, res, next) => {
   return next(error);
 });
 // error handler, send stacktrace only during development
-app.use((error, req, res) => {
+app.use((err, req, res) => {
   // customize Joi validation errors
-  if (error.isJoi) {
-    error.message = error.details.map((e) => e.message).join(';');
-    error.status = 400;
+  if (err.isJoi) {
+    err.message = err.details.map((e) => e.message).join(';');
+    err.status = 400;
   }
-  const status = error.status ? error.status : 500;
   if (!isProduction) {
-    debug(error);
-    return otherHelper.sendResponse(res, status, false, null, error, error.message, null);
+    debug(errorHelper.getErrorObj(err));
+    return errorHelper.customErrorResponse(res, err);
   }
-  return otherHelper.sendResponse(res, status, false, null, error, error.message, null);
+  return errorHelper.customErrorResponse(res, err);
 });
 
 module.exports = app;

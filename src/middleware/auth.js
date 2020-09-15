@@ -1,4 +1,5 @@
-const jwt = require('express-jwt');
+// const jwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 const config = require('../appconfigs/config')();
 
 const getTokenFromHeaders = (req) => {
@@ -9,22 +10,30 @@ const getTokenFromHeaders = (req) => {
   }
   return null;
 };
-
-const auth = {
-  required: jwt({
-    secret: config.jwtSecret,
-    userProperty: 'payload',
-    algorithms: ['RS256'],
-    getToken: getTokenFromHeaders,
-    credentialsRequired: true,
-  }),
-  optional: jwt({
-    secret: config.jwtSecret,
-    userProperty: 'payload',
-    algorithms: ['RS256'],
-    credentialsRequired: false,
-    getToken: getTokenFromHeaders,
-  }),
+const auth = (req, res, next) => {
+  const token = getTokenFromHeaders(req);
+  try {
+    const payload = jwt.verify(token, config.jwtSecret);
+    req.payload = payload;
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
+// const auth = {
+//   required: jwt({
+//     secret: config.jwtSecret,
+//     userProperty: 'payload',
+//     algorithms: ['RS256'],
+//     getToken: getTokenFromHeaders,
+//   }),
+//   optional: jwt({
+//     secret: config.jwtSecret,
+//     userProperty: 'payload',
+//     algorithms: ['RS256'],
+//     credentialsRequired: false,
+//     getToken: getTokenFromHeaders,
+//   }),
+// };
 
 module.exports = auth;
