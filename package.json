@@ -85,5 +85,8 @@
     "ignore": [
       "node_modules/**/node_modules"
     ]
+  },
+  "engines": {
+    "node": "12.13.1"
   }
 }

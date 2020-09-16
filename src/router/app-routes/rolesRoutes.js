@@ -1,6 +1,6 @@
 const express = require('express');
 const RoleController = require('../../modules/users/rolesController');
-const auth = require('../../middleware/auth');
+// const auth = require('../../middleware/auth');
 
 function roleRoutes(Role) {
   const router = express.Router();
@@ -12,7 +12,7 @@ function roleRoutes(Role) {
    * @description Create user role route
    * @access Private
   */
-  router.route('/create-role').post(auth.optional, createRole);
+  router.route('/create-role').post(createRole);
   return router;
 }
 

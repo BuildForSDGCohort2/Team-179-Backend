@@ -8,7 +8,7 @@ module.exports = {
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
       image: {
-        type: Sequelize.STRING,
+        type: Sequelize.ARRAY(Sequelize.STRING),
       // allowNull: false,
       },
       bios: {
@@ -37,13 +37,8 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
-        allowNull: false,
-      },
       userId: {
         type: Sequelize.UUID,
-        allowNull: false,
         references: {
           model: 'Users',
           key: 'id',
