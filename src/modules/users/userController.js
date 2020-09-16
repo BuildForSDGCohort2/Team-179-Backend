@@ -49,7 +49,7 @@ function UserController(User, Role, Profile, RoleAuth) {
       const template = sendMail.signUpTemplate(firstName, emailVerificationCode);
       const msg = {
         to: email,
-        from: 'mbogokennedy@gmail.com',
+        from: 'team179groupa@gmail.com',
         subject: 'Email Verification',
         html: template,
       };
