@@ -5,7 +5,7 @@ const configs = () => {
   const values = ['development', 'production', 'test', 'provision'];
   const envVarsSchema = Joi.object({
     NODE_ENV: Joi.string().allow(...values).default('development'),
-    SERVER_PORT: Joi.number().default(4040),
+    PORT: Joi.number().default(4040),
     JWT_SECRET: Joi.string().required().description('JWT Secret required to sign'),
     DEV_DATABASE_URL: Joi.string().required().description('Postgres DB url'),
     TEST_DATABASE_URL: Joi.string().required().description('Postgres DB url'),
@@ -25,7 +25,7 @@ const configs = () => {
 
   const config = {
     env: envVars.NODE_ENV,
-    port: envVars.SERVER_PORT,
+    port: envVars.PORT,
     jwtSecret: envVars.JWT_SECRET,
     sessionSecret: envVars.SESSION_SECRET,
     devDatabaseUrl: envVars.DEV_DATABASE_URL,
