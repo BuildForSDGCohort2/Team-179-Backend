@@ -4,8 +4,12 @@ const { postUserSchema } = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
+const JWTStrategy = require('../auth/strategies/jwtStrategy');
+const roleController = require('./rolesController');
 
 function UserController(User, Role, Profile, RoleAuth) {
+  const { createRole } = roleController(Role);
+  const { login } = JWTStrategy(User);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
@@ -38,6 +42,9 @@ function UserController(User, Role, Profile, RoleAuth) {
         lastName,
         email,
         password,
+        displayName: `${firstName} ${lastName}`,
+        provider: 'Agri-Vesty',
+        providerId: `${otherHelper.generateRandomHexString(20)}`,
         salt,
         emailVerificationCode,
         emailVerified,
@@ -48,30 +55,22 @@ function UserController(User, Role, Profile, RoleAuth) {
       // email object to be passed to sendgrind
       const template = sendMail.signUpTemplate(firstName, emailVerificationCode);
       const msg = {
-        to: email,
+        to: results.email,
         from: 'team179groupa@gmail.com',
         subject: 'Email Verification',
         html: template,
       };
       // Send email
       sendMail.send(msg);
-      // Loop through all the id in req.role
-      roles.forEach(async (item) => {
-        try {
-          // Search if the role id it exists. If it doesn't, respond with status 400.
-          const role = await Role.findOne({ where: { role: item } });
-          if (!role) {
-            debug('Role does not exist');
-          }
-          await results.setRoles(role);
-          return;
-        } catch (err) {
-          next(err);
-        }
-      });
+      createRole(roles, results);
       // generate authentication token
-      const token = otherHelper.generateJWT(results.id, email);
-      return otherHelper.sendResponse(res, 201, true, otherHelper.toAuthJSON(results), null, 'New user registered successfully', token);
+      // const token = otherHelper.generateJWT(results.id, email);
+      const [loginErr, token] = await login(req, otherHelper.toAuthJSON(results));
+      if (loginErr) {
+        debug(loginErr);
+        return otherHelper.sendResponse(res, 500, true, null, null, 'Authentication Failed!', token);
+      }
+      return otherHelper.sendResponse(res, 201, true, null, null, 'New user registered successfully', token);
     } catch (err) {
       return next(err);
     }
@@ -293,8 +292,40 @@ function UserController(User, Role, Profile, RoleAuth) {
       return next(err);
     }
   };
+  const signIn = async (req, res) => {
+    const { email, password } = req.body;
+    const user = User.findOne({
+      where: { email },
+    });
+    if (!user || !otherHelper.validatePassword(password, user.salt, user.password)) {
+      return otherHelper.sendResponse(res, 400, true, null, null, 'password is invalid', null);
+    }
+
+    const [loginErr, token] = await login(req, otherHelper.toAuthJSON(user));
+
+    if (loginErr) {
+      debug(loginErr);
+      return otherHelper.sendResponse(res, 500, true, null, null, 'Authentication Failed!', null);
+    }
+    return otherHelper.sendResponse(res, 201, true, null, null, 'Logged in successfully', token);
+  };
+  const googleLogin = (req, res) => {
+    const token = otherHelper.generateJWT(req.user);
+    return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+  };
+  const facebookLogin = (req, res) => {
+    const token = otherHelper.generateJWT(req.user);
+    return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+  };
   const controller = {
-    createUser, updateProfile, findUser, createProfile, findUsers,
+    createUser,
+    updateProfile,
+    findUser,
+    createProfile,
+    findUsers,
+    signIn,
+    googleLogin,
+    facebookLogin,
   };
   return controller;
 }

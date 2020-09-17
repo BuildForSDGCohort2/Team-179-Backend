@@ -66,7 +66,7 @@ app.use(cookieParser());
 app.use(compress());
 
 // Passport Config
-require('./passport')(app);
+require('../modules/auth/passport')(app);
 // Welcome message
 app.get('/', (req, res) => {
   res.send('Welcome to Agri-Fund API');

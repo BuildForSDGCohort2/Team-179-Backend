@@ -92,14 +92,13 @@ otherHelper.validatePassword = (password, salt, hashedPassword) => {
 };
 
 // Generate the user token.
-otherHelper.generateJWT = (id, email) => {
+otherHelper.generateJWT = (user) => {
   const today = new Date();
   const expirationDate = new Date(today);
   expirationDate.setDate(today.getDate() + 60);
 
   return jwt.sign({
-    id,
-    email,
+    user,
     exp: parseInt(expirationDate.getTime() / 1000, 10),
   }, jwtSecret);
 };
