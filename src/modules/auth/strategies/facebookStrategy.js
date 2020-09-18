@@ -11,8 +11,8 @@ module.exports = (User, Role) => {
   const strategyOptions = {
     clientID: config.facebookID,
     clientSecret: config.facebookSecret,
-    callbackURL: `${config.serverUrl}/auth/facebook/callback`,
-    profileFields: ['id', 'displayName', 'name', 'emails'],
+    callbackURL: 'http://localhost:4000/api/auth/facebook/callback',
+    profileFields: ['id', 'displayName', 'name', 'email'],
   };
   const verifyCallback = async (accessToken, refreshToken, profile, done) => {
     try {
@@ -22,6 +22,7 @@ module.exports = (User, Role) => {
       if (user) {
         return done(null, user);
       }
+      debug(profile);
       // Extract the minimal profile information we need from the profile object
       const emailVerified = true;
       const emailVerificationRequestDate = new Date();
@@ -40,6 +41,7 @@ module.exports = (User, Role) => {
         createdAt,
         updatedAt,
       };
+      debug(data);
       const results = await User.create(data);
       // email object to be passed to sendgrind
       const template = sendMail.authTemplate(results.firstName);

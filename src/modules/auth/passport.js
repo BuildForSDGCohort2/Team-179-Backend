@@ -2,11 +2,11 @@ const passport = require('passport');
 const {
   User, Role,
 } = require('../../database/models');
-const { jwtStrategy, GoogleStrategy, FacebookStrategy } = require('./strategies')(User, Role);
+const { GoogleStrategy, FacebookStrategy } = require('./strategies');
 
 // const pipe = (...functions) => (args) => functions.reduce((arg, fn) => fn(arg), args);
 const passportFunction = (app) => {
-  jwtStrategy();
+  // JWTStrategy();
   GoogleStrategy(User, Role);
   FacebookStrategy(User, Role);
   app.use(passport.initialize());

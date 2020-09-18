@@ -1,15 +1,20 @@
 const debug = require('debug')('app:UserController');
 const { Op } = require('sequelize');
-const { postUserSchema } = require('./validation');
+const {
+  postUserSchema,
+  loginSchema,
+  passwordResetSchema,
+  forgotSchema,
+  updateProfileSchema,
+  createProfileSchema,
+} = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
-const JWTStrategy = require('../auth/strategies/jwtStrategy');
 const roleController = require('./rolesController');
 
 function UserController(User, Role, Profile, RoleAuth) {
   const { createRole } = roleController(Role);
-  const { login } = JWTStrategy(User);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
@@ -64,12 +69,7 @@ function UserController(User, Role, Profile, RoleAuth) {
       sendMail.send(msg);
       createRole(roles, results);
       // generate authentication token
-      // const token = otherHelper.generateJWT(results.id, email);
-      const [loginErr, token] = await login(req, otherHelper.toAuthJSON(results));
-      if (loginErr) {
-        debug(loginErr);
-        return otherHelper.sendResponse(res, 500, true, null, null, 'Authentication Failed!', token);
-      }
+      const token = otherHelper.generateJWT(otherHelper.toAuthJSON(results));
       return otherHelper.sendResponse(res, 201, true, null, null, 'New user registered successfully', token);
     } catch (err) {
       return next(err);
@@ -81,6 +81,7 @@ function UserController(User, Role, Profile, RoleAuth) {
     if (isEmpty(req.body)) {
       return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the required details', null);
     }
+    createProfileSchema.validateAsync(req.body);
     try {
       // validates the signup data from the user
       // await postUserSchema.validateAsync(req.body);
@@ -95,7 +96,7 @@ function UserController(User, Role, Profile, RoleAuth) {
         certificateOfConduct,
       } = req.body;
       // Checks find user on the database
-      const { id } = req.payload;
+      const { id } = req.payload.user;
       const user = await User.findOne({ where: { id } });
 
       if (!user && (user.emailVerified === false)) {
@@ -125,10 +126,16 @@ function UserController(User, Role, Profile, RoleAuth) {
   // Update user
   const updateProfile = async (req, res, next) => {
     try {
+      // checks if the user submits an empty profile update
+    // debug(req.body);
+      if (isEmpty(req.body)) {
+        return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the required details', null);
+      }
       // delete id from the body to ensure you don't update id.
       if (req.body.id) {
         delete req.body.id;
       }
+      updateProfileSchema.validateAsync(req.body);
       const {
         firstName,
         lastName,
@@ -159,7 +166,7 @@ function UserController(User, Role, Profile, RoleAuth) {
         kraPin,
         certificateOfConduct,
       };
-      const { payload: { id } } = req;
+      const { id } = req.payload.user;
       const { profileId } = req.params;
       // debug(id);
       const user = await User.findOne({ where: { id } });
@@ -228,9 +235,10 @@ function UserController(User, Role, Profile, RoleAuth) {
     }
   };
   // finds user from the database
-  const findUser = async (req, res, next) => {
+  const findOneUser = async (req, res, next) => {
     try {
-      const { payload: { id } } = req;
+      const { id } = req.payload.user;
+      // debug(req.payload);
       // const { id } = req.params;
       const user = await User.findOne({
         where: { id },
@@ -262,7 +270,7 @@ function UserController(User, Role, Profile, RoleAuth) {
     }
   };
   // finds user from the database
-  const findUsers = async (req, res, next) => {
+  const findAllUsers = async (req, res, next) => {
     try {
       const users = await User.findAll({
         attributes: [
@@ -292,40 +300,232 @@ function UserController(User, Role, Profile, RoleAuth) {
       return next(err);
     }
   };
-  const signIn = async (req, res) => {
+  const signIn = async (req, res, next) => {
     const { email, password } = req.body;
-    const user = User.findOne({
-      where: { email },
-    });
-    if (!user || !otherHelper.validatePassword(password, user.salt, user.password)) {
-      return otherHelper.sendResponse(res, 400, true, null, null, 'password is invalid', null);
+    const userBody = { email, password };
+    if (!userBody) {
+      res.status(422).json({
+        errs: {
+          success: false,
+          msg: 'Please make sure you have entered all the fields',
+        },
+      });
     }
-
-    const [loginErr, token] = await login(req, otherHelper.toAuthJSON(user));
-
-    if (loginErr) {
-      debug(loginErr);
-      return otherHelper.sendResponse(res, 500, true, null, null, 'Authentication Failed!', null);
+    try {
+      await loginSchema.validateAsync(userBody);
+      const user = await User.findOne({
+        where: { email },
+      });
+      if (!user || !otherHelper.validatePassword(password, user.salt, user.password)) {
+        return otherHelper.sendResponse(res, 400, true, null, null, 'password is invalid', null);
+      }
+      const result = otherHelper.toAuthJSON(user);
+      const token = otherHelper.generateJWT(result);
+      return otherHelper.sendResponse(res, 201, true, result, null, 'Logged in successfully', token);
+    } catch (error) {
+      return next(error);
     }
-    return otherHelper.sendResponse(res, 201, true, null, null, 'Logged in successfully', token);
   };
+
   const googleLogin = (req, res) => {
-    const token = otherHelper.generateJWT(req.user);
+    const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
     return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
   };
   const facebookLogin = (req, res) => {
-    const token = otherHelper.generateJWT(req.user);
+    const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
     return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+  };
+  const Verifymail = async (req, res, next) => {
+    try {
+      const { email } = req.payload.user;
+      const { code } = req.query;
+      const user = await User.findOne({
+        where: {
+          [Op.and]: [
+            { email },
+            { emailVerificationCode: code },
+          ],
+        },
+      });
+      if (!user) {
+        return otherHelper.sendResponse(res, 404, false, email, null, 'Invalid Verification Code', null);
+      }
+      await User.update({ emailVerified: true }, {
+        where: { id: user.id },
+      });
+      return otherHelper.sendResponse(res, 201, true, null, null, 'Email Verified', null);
+    } catch (err) {
+      return next(err);
+    }
+  };
+
+  const ResendVerificationCode = async (req, res, next) => {
+    try {
+      const { email } = req.payload.user;
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return otherHelper.sendResponse(res, 404, false, email, null, 'Invalid Verification Code', null);
+      }
+      if (user.emailVerified) {
+        return otherHelper.sendResponse(res, 200, true, { email }, null, 'Email Already Verified', null);
+      }
+      const currentDate = new Date();
+      // in minute
+      const diff = parseInt((currentDate - user.emailVerificationRequestDate) / (1000 * 60), 16);
+      if (diff < 10) {
+        return otherHelper.sendResponse(res, 200, true, { email }, null, 'Email verification code already sent', null);
+      }
+      const emailVerificationCode = otherHelper.generateRandomHexString(12);
+      await User.update({
+        emailVerified: false,
+        emailVerificationCode,
+        emailVerificationRequestDate: currentDate,
+      }, {
+        where: { id: user.id },
+      });
+      // email object to be passed to sendgrind
+      const template = sendMail.signUpTemplate(user.firstName, emailVerificationCode);
+      const msg = {
+        to: email,
+        from: 'team179groupa@gmail.com',
+        subject: 'Email Verification',
+        html: template,
+      };
+        // Send email
+      sendMail.send(msg);
+      return otherHelper.sendResponse(res, 200, true, null, null, 'Email verification code Sent!!', null);
+    } catch (err) {
+      return next(err);
+    }
+  };
+  // Provide ability to reset forgoten password
+  const ForgotPassword = async (req, res, next) => {
+    try {
+      forgotSchema.validateAsync(req.body);
+      const { email } = req.body;
+      // Verify if the user exists
+      const user = await User.findOne({ where: { email } });
+      const data = { email };
+      if (!user) {
+        return otherHelper.sendResponse(res, 404, false, data, null, 'Email not found', null);
+      }
+      // check if time elapsed since sending the last reset code is greater than 10 min
+      const currentDate = new Date();
+      const diff = parseInt((currentDate - user.passwordResetRequestDate) / (1000 * 60), 16);
+      if (diff < 10) {
+        return otherHelper.sendResponse(res, 200, true, { email }, null, 'Email password reset code already sent', null);
+      }
+      const passwordResetCode = otherHelper.generateRandomHexString(6);
+      await User.update({
+        passwordResetCode,
+        passwordResetRequestDate: currentDate,
+      }, {
+        where: { id: user.id },
+      });
+      // email object to be passed to sendgrind
+      const template = sendMail.signUpTemplate(user.firstName, passwordResetCode);
+      const msg = {
+        to: email,
+        from: 'team179groupa@gmail.com',
+        subject: 'Email Verification',
+        html: template,
+      };
+        // Send email
+      sendMail.send(msg);
+      return otherHelper.sendResponse(res, 200, true, null, null, `Password Reset Code For ${email} is sent to email`, null);
+    } catch (err) {
+      return next(err);
+    }
+  };
+  // Reset password using the code sent to the email
+  const ResetPassword = async (req, res, next) => {
+    try {
+      await passwordResetSchema.validateAsync(req.body);
+      const { email, password } = req.body;
+      const { code } = req.query;
+      // verify the user email and reset code
+      const user = await User.findOne({
+        where: {
+          [Op.and]: [
+            { email },
+            { passwordResetCode: code },
+          ],
+        },
+      });
+      const data = { email };
+      if (!user) {
+        return otherHelper.sendResponse(res, 404, false, data, null, 'Invalid Password Reset Code', null);
+      }
+      const { salt, hashedPassword } = otherHelper.hashPassword(password);
+      // Update password
+      const result = await User.update({
+        salt,
+        password: hashedPassword,
+        emailVerified: true,
+      }, {
+        where: { id: user.id },
+      });
+      // generate token for the user.
+      const results = otherHelper.toAuthJSON(result);
+      const token = otherHelper.generateJWT(results);
+      return otherHelper.sendResponse(res, 200, true, results, null, null, token);
+    } catch (err) {
+      return next(err);
+    }
+  };
+  const changePassword = async (req, res, next) => {
+    try {
+      // debug(req.payload);
+      const { id } = req.payload.user;
+      const { oldPassword, newPassword } = req.body;
+      const user = await User.findOne({
+        where: { id },
+      });
+      if (otherHelper.validatePassword(oldPassword, user.salt, user.password)) {
+        const { salt, hashedPassword } = otherHelper.hashPassword(newPassword);
+        const results = await User.update({
+          salt,
+          password: hashedPassword,
+        }, {
+          where: { id: user.id },
+        });
+        const result = otherHelper.toAuthJSON(results);
+        return otherHelper.sendResponse(res, 200, true, result, null, 'Password Change Success', null);
+      }
+      return otherHelper.sendResponse(res, 400, false, null, null, 'Old Password incorrect', null);
+    } catch (err) {
+      return next(err);
+    }
+  };
+  const deleteUser = async (req, res, next) => {
+    try {
+      const { id } = req.payload.user;
+      const roles = await User.getRoles();
+      User.removeRoles(roles);
+      await User.destroy({
+        where: { id },
+      });
+      return otherHelper.sendResponse(res, 204, true, {}, null, 'User deleted successfully', null);
+    } catch (err) {
+      return next(err);
+    }
   };
   const controller = {
     createUser,
     updateProfile,
-    findUser,
+    findOneUser,
     createProfile,
-    findUsers,
+    findAllUsers,
     signIn,
     googleLogin,
     facebookLogin,
+    Verifymail,
+    ResendVerificationCode,
+    ForgotPassword,
+    ResetPassword,
+    changePassword,
+    deleteUser,
+
   };
   return controller;
 }

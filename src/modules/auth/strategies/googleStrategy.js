@@ -11,7 +11,7 @@ module.exports = (User, Role) => {
   const strategyOptions = {
     clientID: config.googleId,
     clientSecret: config.googleSecret,
-    callbackURL: `${config.serverUrl}/auth/google/callback`,
+    callbackURL: 'http://localhost:4000/api/auth/google/callback',
   };
   const verifyCallback = async (accessToken, refreshToken, profile, done) => {
     try {

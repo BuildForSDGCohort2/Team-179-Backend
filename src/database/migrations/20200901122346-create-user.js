@@ -35,7 +35,6 @@ module.exports = {
       },
       salt: {
         type: Sequelize.TEXT,
-        allowNull: false,
       },
       emailVerificationCode: {
         type: Sequelize.STRING,
