@@ -20,15 +20,21 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       password: {
         type: Sequelize.TEXT,
-        allowNull: false,
+      },
+      displayName: {
+        type: Sequelize.STRING,
+      },
+      providerId: {
+        type: Sequelize.TEXT,
+      },
+      provider: {
+        type: Sequelize.STRING,
       },
       salt: {
         type: Sequelize.TEXT,
-        allowNull: false,
       },
       emailVerificationCode: {
         type: Sequelize.STRING,

@@ -17,6 +17,11 @@ const configs = () => {
     SMTP_SERVER: Joi.string().required().description('smtp server required'),
     SMTP_PORT: Joi.string().required().description('smtp port required'),
     EMAILING_CHANNEL: Joi.string().required().description('Emailing Channel required'),
+    GOOGLE_CLIENT_ID: Joi.string().required().description('Google client id required'),
+    GOOGLE_CLIENT_SECRET: Joi.string().required().description('Google client secret required'),
+    FACEBOOK_APP_ID: Joi.string().required().description('Facebook app id required'),
+    FACEBOOK_APP_SECRET: Joi.string().required().description('Facebook app secret required'),
+    SERVER_API_URL: Joi.string().required().description('Server URL required'),
   }).unknown()
     .required();
 
@@ -40,6 +45,11 @@ const configs = () => {
     },
     sendgrid: envVars.SENDGRID_API_KEY,
     channel: envVars.EMAILING_CHANNEL,
+    googleId: envVars.GOOGLE_CLIENT_ID,
+    googleSecret: envVars.GOOGLE_CLIENT_SECRET,
+    facebookID: envVars.FACEBOOK_APP_ID,
+    facebookSecret: envVars.FACEBOOK_APP_SECRET,
+    serverUrl: envVars.serverUrl,
   };
   return config;
 };

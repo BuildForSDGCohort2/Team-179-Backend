@@ -5,14 +5,19 @@ const config = require('../appconfigs/config')();
 const getTokenFromHeaders = (req) => {
   const { headers: { authorization } } = req;
 
-  if ((authorization && authorization.split(' ')[0] === 'Bearer') || (authorization && authorization.split(' ')[0] === 'Token')) {
+  if ((authorization && authorization.split(' ')[0] === 'Bearer')
+  || (authorization && authorization.split(' ')[0] === 'Token')) {
     return authorization.split(' ')[1];
   }
   return null;
 };
+
 const auth = (req, res, next) => {
   const token = getTokenFromHeaders(req);
   try {
+    if (!token) {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
     const payload = jwt.verify(token, config.jwtSecret);
     req.payload = payload;
     next();

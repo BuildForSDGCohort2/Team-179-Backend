@@ -29,6 +29,10 @@ const isProduction = config.env === 'production';
 // serve startic files
 const distDir = '../../public';
 app.use(express.static(path.join(__dirname, distDir)));
+// Welcome home page
+app.use(/^((?!(api)).)*/, (req, res) => {
+  res.sendFile(path.join(__dirname, `${distDir}/index.html`));
+});
 // secure apps by setting various HTTP headers
 app.use(helmet());
 // protect against HTTP Parameter Pollution attacks
@@ -66,14 +70,19 @@ app.use(cookieParser());
 app.use(compress());
 
 // Passport Config
-require('./passport')(app);
-// Welcome message
-app.get('/', (req, res) => {
-  res.send('Welcome to Agri-Fund API');
-});
+require('../modules/auth/passport')(app);
+
+// app.get('/', (req, res) => {
+//   res.send('Welcome to Agri-Fund API');
+// });
 // API router
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
+
+// Set the template engine
+app.set('views', '../ve');
+app.set('view engine', 'ejs');
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const error = new HttpError(404);

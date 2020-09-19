@@ -79,5 +79,24 @@ sendMail.signUpTemplate = (name, code) => {
   // Generate and return an HTML email with the provided contents
   return mailGenerator.generate(email);
 };
-
+sendMail.authTemplate = (name) => {
+  // Configure email content with the custom name and code
+  const email = {
+    body: {
+      name: `${name}`,
+      intro: 'Welcome to Agri-Vesty! We\'re very excited to have you on board.',
+      action: {
+        instructions: 'To get started with Agri-Vesty, please click here:',
+        button: {
+          color: '#22BC66',
+          text: 'Go to Agri-Vesty',
+          link: `${config.serverUrl}`,
+        },
+      },
+      outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
+    },
+  };
+  // Generate and return an HTML email with the provided contents
+  return mailGenerator.generate(email);
+};
 module.exports = sendMail;
