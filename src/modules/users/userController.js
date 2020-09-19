@@ -13,7 +13,7 @@ const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
 const roleController = require('./rolesController');
 
-function UserController(User, Role, Profile, RoleAuth) {
+function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
   const { createRole } = roleController(Role);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
@@ -259,7 +259,17 @@ function UserController(User, Role, Profile, RoleAuth) {
           {
             model: Profile,
             as: 'userProfile',
-          }],
+          },
+          {
+            model: Farm,
+            as: 'farms',
+            include: [
+              {
+                model: Location,
+                as: 'location',
+              }],
+          },
+        ],
       });
       if (!user) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'User not found', null);
@@ -282,15 +292,6 @@ function UserController(User, Role, Profile, RoleAuth) {
           'createdAt',
           'updatedAt',
         ],
-        include: [
-          {
-            model: Role,
-            as: 'roles',
-          },
-          {
-            model: Profile,
-            as: 'userProfile',
-          }],
       });
       if (isEmpty(users)) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'User not found', null);

@@ -1,6 +1,6 @@
 const { Strategy } = require('passport-facebook');
 const passport = require('passport');
-const debug = require('debug')('app:FacebookStrategy');
+// const debug = require('debug')('app:FacebookStrategy');
 const config = require('../../../appconfigs/config')();
 // const otherHelper = require('../../../helpers/otherhelpers');
 const sendMail = require('../../../helpers/emailHelper');
@@ -11,7 +11,7 @@ module.exports = (User, Role) => {
   const strategyOptions = {
     clientID: config.facebookID,
     clientSecret: config.facebookSecret,
-    callbackURL: 'http://localhost:4000/api/auth/facebook/callback',
+    callbackURL: `${process.env.SERVER_API_URL}/auth/facebook/callback`,
     profileFields: ['id', 'displayName', 'name', 'email'],
   };
   const verifyCallback = async (accessToken, refreshToken, profile, done) => {
@@ -22,7 +22,7 @@ module.exports = (User, Role) => {
       if (user) {
         return done(null, user);
       }
-      debug(profile);
+      // debug(profile);
       // Extract the minimal profile information we need from the profile object
       const emailVerified = true;
       const emailVerificationRequestDate = new Date();
@@ -41,7 +41,7 @@ module.exports = (User, Role) => {
         createdAt,
         updatedAt,
       };
-      debug(data);
+      // debug(data);
       const results = await User.create(data);
       // email object to be passed to sendgrind
       const template = sendMail.authTemplate(results.firstName);
@@ -56,7 +56,7 @@ module.exports = (User, Role) => {
       createRole(roles, results);
       return done(null, results);
     } catch (err) {
-      debug('err:', err);
+      // debug('err:', err);
       return done(err, null);
     }
   };

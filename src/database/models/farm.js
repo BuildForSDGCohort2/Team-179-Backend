@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'farmerId',
       as: 'farmer',
     });
-    Farm.belongsTo(models.Location, {
-      foreignKey: 'locationId',
+    Farm.hasOne(models.Location, {
+      foreignKey: 'farmId',
       as: 'location',
     });
   };

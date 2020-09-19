@@ -7,6 +7,12 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
+      farmId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: { model: 'Farms', key: 'id' },
+        onDelete: 'CASCADE',
+      },
       county: {
         type: Sequelize.STRING,
       },

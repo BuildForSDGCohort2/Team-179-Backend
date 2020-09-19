@@ -7,11 +7,12 @@ module.exports = (sequelize, DataTypes) => {
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});
+  // eslint-disable-next-line no-unused-vars
   Location.associate = (models) => {
-    Location.hasMany(models.Farm, {
-      foreignKey: 'locationId',
-      as: 'farms',
-    });
+    // Location.hasMany(models.Farm, {
+    //   foreignKey: 'locationId',
+    //   as: 'farms',
+    // });
   };
   return Location;
 };

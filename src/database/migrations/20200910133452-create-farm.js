@@ -13,12 +13,6 @@ module.exports = {
         references: { model: 'Users', key: 'id' },
         onDelete: 'CASCADE',
       },
-      locationId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: { model: 'Locations', key: 'id' },
-        onDelete: 'CASCADE',
-      },
       landForm: {
         type: Sequelize.STRING,
       },
