@@ -3,7 +3,7 @@ const passport = require('passport');
 const userController = require('../../modules/users/userController');
 const auth = require('../../middleware/auth');
 
-function userRoutes(User, Role, Profile, RolesAuth) {
+function userRoutes(User, Role, Profile, RolesAuth, Farm, Location) {
   const router = express.Router();
   const {
     createUser,
@@ -20,7 +20,7 @@ function userRoutes(User, Role, Profile, RolesAuth) {
     ResetPassword,
     changePassword,
     deleteUser,
-  } = userController(User, Role, Profile, RolesAuth);
+  } = userController(User, Role, Profile, RolesAuth, Farm, Location);
 
   /**
    * @route POST api/user/register
@@ -139,7 +139,7 @@ function userRoutes(User, Role, Profile, RolesAuth) {
    * @description Delete User
    * @access Private
   */
-  router.route('/user/delete').delete(deleteUser);
+  router.route('/user/delete').delete(auth, deleteUser);
   return router;
 }
 

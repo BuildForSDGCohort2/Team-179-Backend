@@ -1,17 +1,18 @@
 const { Strategy } = require('passport-google-oauth20');
 const passport = require('passport');
-const debug = require('debug')('app:GoogleStrategy');
+// const debug = require('debug')('app:GoogleStrategy');
 const config = require('../../../appconfigs/config')();
 // const otherHelper = require('../../../helpers/otherhelpers');
 const sendMail = require('../../../helpers/emailHelper');
 const roleController = require('../../users/rolesController');
+require('dotenv').config();
 
 module.exports = (User, Role) => {
   const { createRole } = roleController(Role);
   const strategyOptions = {
     clientID: config.googleId,
     clientSecret: config.googleSecret,
-    callbackURL: 'http://localhost:4000/api/auth/google/callback',
+    callbackURL: `${process.env.SERVER_API_URL}/auth/google/callback`,
   };
   const verifyCallback = async (accessToken, refreshToken, profile, done) => {
     try {
@@ -53,7 +54,7 @@ module.exports = (User, Role) => {
       createRole(roles, results);
       return done(null, results);
     } catch (err) {
-      debug('err:', err);
+      // debug('err:', err);
       return done(err, null);
     }
   };
