@@ -79,10 +79,19 @@ require('../modules/auth/passport')(app);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api', routes);
 
-// Set the template engine
-app.set('views', '../ve');
-app.set('view engine', 'ejs');
+// create our webhook endpoint to recive webhooks from Safaricom
+app.post('/api/hooks/mpesa', (req, res) => {
+  debug('-----------Received M-Pesa webhook-----------');
 
+  // format and dump the request payload recieved from safaricom in the terminal
+  debug(req.body);
+  debug('-----------------------');
+
+  const message = { ResponseCode: '00000000', ResponseDesc: 'success' };
+
+  // respond to safaricom servers with a success message
+  res.json(message);
+});
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const error = new HttpError(404);

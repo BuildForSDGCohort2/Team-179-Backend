@@ -17,7 +17,6 @@ const postUserSchema = Joi.object({
     .max(35)
     .required(),
   confirmPassword: Joi.ref('password'),
-  roles: Joi.array().items(Joi.string()),
 });
 const updateProfileSchema = Joi.object({
   firstName: Joi.string()
