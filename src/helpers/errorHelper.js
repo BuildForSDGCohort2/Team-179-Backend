@@ -34,11 +34,11 @@ errorHelper.getErrorObj = (err) => {
 errorHelper.customErrorResponse = (res, cancellationErr) => {
   const errorMessage = errorHelper.outputJSONErrorMessage(cancellationErr);
 
-  res.status(errorMessage.status_code);
+  res.status(errorMessage.statusCode);
 
   res.json({
-    status: errorMessage.status_code,
-    message: errorMessage.message,
+    status: errorMessage.statusCode,
+    data: errorMessage.data,
   });
 };
 module.exports = errorHelper;

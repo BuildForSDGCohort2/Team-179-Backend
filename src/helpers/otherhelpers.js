@@ -118,4 +118,27 @@ otherHelper.toAuthJSON = (results) => {
   return user;
 };
 
+otherHelper.getTimeStamp = () => {
+  function parseDate(e) { return (e < 10) ? `0${e}` : e; }
+  const ourDate = new Date();
+  const currentTime = new Date(ourDate.toLocaleString('en-us', { timeZone: 'Africa/Nairobi' }));
+  const month = parseDate(currentTime.getMonth() + 1);
+  const date = parseDate(currentTime.getDate());
+  const hour = parseDate(currentTime.getHours());
+  const minutes = parseDate(currentTime.getMinutes());
+  const seconds = parseDate(currentTime.getSeconds());
+  return `${currentTime.getFullYear()}${month}${date}${
+    hour}${minutes}${seconds}`;
+};
+
+otherHelper.processPhone = (phone) => {
+  const phoneArray = phone.split('');
+  if (phoneArray[0] === '0') {
+    phoneArray.splice(0, 1, '254');
+  }
+  if (phoneArray[0] === '+') {
+    phoneArray.splice(0, 1);
+  }
+  return phoneArray.join('');
+};
 module.exports = otherHelper;

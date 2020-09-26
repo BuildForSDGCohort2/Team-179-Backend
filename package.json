@@ -13,7 +13,7 @@
     "lint-fix": "npm run lint -- --fix",
     "pretest": "npm run lint",
     "lint-init": "eslint -- --init",
-    "share": "lt --port 4000",
+    "share": "lt --port 4000 --subdomain agri-vesty",
     "security-check": "npm audit"
   },
   "repository": {
@@ -36,6 +36,8 @@
     "@hapi/joi": "^17.1.1",
     "@sendgrid/mail": "^7.2.5",
     "awesome-phonenumber": "^2.37.1",
+    "axios": "^0.20.0",
+    "axios-retry": "^3.1.9",
     "body-parser": "^1.19.0",
     "chalk": "^4.1.0",
     "compression": "^1.7.4",
@@ -54,6 +56,7 @@
     "mailgen": "^2.0.13",
     "method-override": "^3.0.0",
     "morgan": "^1.10.0",
+    "mpesa-api": "^2.3.3",
     "multer": "^1.4.2",
     "nodemailer": "^6.4.11",
     "passport": "^0.4.1",
@@ -63,6 +66,7 @@
     "passport-local": "^1.0.0",
     "pg": "^8.3.2",
     "pg-hstore": "^2.3.3",
+    "request": "^2.88.2",
     "sequelize": "^6.3.4",
     "sequelize-cli": "^6.2.0",
     "swagger-ui-express": "^4.1.4",

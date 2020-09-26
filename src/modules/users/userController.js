@@ -14,7 +14,6 @@ const sendMail = require('../../helpers/emailHelper');
 const roleController = require('./rolesController');
 
 function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
-  const { createRole } = roleController(Role);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
@@ -26,8 +25,9 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
       await postUserSchema.validateAsync(req.body);
       let {
         // eslint-disable-next-line prefer-const
-        firstName, lastName, email, password, roles,
+        firstName, lastName, email, password,
       } = req.body;
+      const roles = ['clent'];
       // Checks if the user exists on the database e6b397ec-14ba-4cc6-8719-e9ff03d54139
       const dbUser = await User.findOne({ where: { email } });
 
@@ -67,7 +67,8 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
       };
       // Send email
       sendMail.send(msg);
-      createRole(roles, results);
+      const { createRole } = roleController(Role);
+      await createRole(roles, results);
       // generate authentication token
       const token = otherHelper.generateJWT(otherHelper.toAuthJSON(results));
       return otherHelper.sendResponse(res, 201, true, null, null, 'New user registered successfully', token);

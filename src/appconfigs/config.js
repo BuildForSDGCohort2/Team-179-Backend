@@ -22,6 +22,11 @@ const configs = () => {
     FACEBOOK_APP_ID: Joi.string().required().description('Facebook app id required'),
     FACEBOOK_APP_SECRET: Joi.string().required().description('Facebook app secret required'),
     SERVER_API_URL: Joi.string().required().description('Server URL required'),
+    MPESA_CONSUMER_KEY: Joi.string().required().description('Mpesa Consumer Key required'),
+    MPESA_CONSUMER_SECRET: Joi.string().required().description('Mpesa Consumer secret required'),
+    LIPA_NA_MPESA_SHORT_CODE: Joi.number().required().description('Lipa na Mpesa short coderequired'),
+    LIPA_NA_MPESA_PASS_KEY: Joi.string().required().description('Lipa na Mpesa pass key required'),
+    MPESA_ENCODED: Joi.string().required().description('Mpesa security credentials required'),
   }).unknown()
     .required();
 
@@ -50,6 +55,11 @@ const configs = () => {
     facebookID: envVars.FACEBOOK_APP_ID,
     facebookSecret: envVars.FACEBOOK_APP_SECRET,
     serverUrl: envVars.serverUrl,
+    mpesaSecret: envVars.MPESA_CONSUMER_SECRET,
+    mpesaKey: envVars.MPESA_CONSUMER_KEY,
+    lipaMpesaCode: envVars.LIPA_NA_MPESA_SHORT_CODE,
+    lipaMpesaKey: envVars.LIPA_NA_MPESA_PASS_KEY,
+    mpesa_encoded: envVars.MPESA_ENCODED,
   };
   return config;
 };
