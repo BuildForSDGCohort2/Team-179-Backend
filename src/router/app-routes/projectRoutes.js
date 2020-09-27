@@ -1,50 +1,50 @@
 const express = require('express');
-const farmController = require('../../modules/farm/farmController');
+const projectController = require('../../modules/project/projectsController');
 const auth = require('../../middleware/auth');
 
-function farmRoutes(Farm, Location, User) {
+function farmRoutes(Project, User, Farm) {
   const router = express.Router();
   const {
-    createFarm,
-    findFarm,
-    findAllFarms,
-    deleteFirm,
-    updateFarms,
-  } = farmController(Farm, Location, User);
+    createProject,
+    findProject,
+    findAllProjects,
+    deleteProject,
+    updateProject,
+  } = projectController(Project, User, Farm);
 
   /**
    * @route POST api/farm/create-farm
    * @description create farm route
    * @access Private
   */
-  router.route('/farms/create-farm').post(auth, createFarm);
+  router.route('/projects/:farmId/create-projects').post(auth, createProject);
 
   /**
   * @route Put api/user/farm/:farmId
   * @description updte farm detail route
   * @access Private
  */
-  router.route('/farms/:farmId').put(auth, updateFarms);
+  router.route('/projects/:projectId').put(auth, updateProject);
 
   /**
   * @route Put api/farms/:farmId
   * @description get farm details
   * @access Private
  */
-  router.route('/farms/:farmId').get(auth, findFarm);
+  router.route('projects/:projectId').get(auth, findProject);
 
   /**
   * @route Put api/farms/list
   * @description get farm list
   * @access Private
  */
-  router.route('/farms/list').get(auth, findAllFarms);
+  router.route('/projects/list').get(auth, findAllProjects);
   /**
    * @route Put /farm/delete
    * @description Delete farm
    * @access Private
   */
-  router.route('/farm/delete/:farmId').delete(auth, deleteFirm);
+  router.route('/projects/:projectId').delete(auth, deleteProject);
   return router;
 }
 

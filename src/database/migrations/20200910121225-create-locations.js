@@ -9,7 +9,6 @@ module.exports = {
       },
       farmId: {
         type: Sequelize.UUID,
-        allowNull: false,
         references: { model: 'Farms', key: 'id' },
         onDelete: 'CASCADE',
       },

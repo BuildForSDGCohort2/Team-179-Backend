@@ -4,8 +4,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectComments = sequelize.define('ProjectComments', {
-    projectId: DataTypes.UUID,
-    userId: DataTypes.UUID,
     body: DataTypes.TEXT,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

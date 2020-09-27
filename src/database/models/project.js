@@ -6,23 +6,29 @@ module.exports = (sequelize, DataTypes) => {
   const Project = sequelize.define('Project', {
     title: DataTypes.STRING,
     description: DataTypes.TEXT,
-    farmerId: DataTypes.UUID,
-    cost: DataTypes.DECIMAL,
     dateStarted: DataTypes.DATE,
     dateEnded: DataTypes.DATE,
     imageUrl: DataTypes.STRING,
+    status: DataTypes.BOOLEAN,
+    targetCost: DataTypes.DECIMAL,
+    progress: DataTypes.DECIMAL,
     totalInvested: DataTypes.DECIMAL,
+    isWithdrawable: DataTypes.BOOLEAN,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});
   Project.associate = (models) => {
     Project.hasMany(models.ProjectInvestments, {
-      foreignKey: 'investorsId',
+      foreignKey: 'projectId',
       as: 'investors',
     });
     Project.belongsTo(models.User, {
-      foreignKey: 'farmerId',
-      as: 'farmer',
+      foreignKey: 'userId',
+      as: 'User',
+    });
+    Project.belongsTo(models.User, {
+      foreignKey: 'farmId',
+      as: 'farm',
     });
     Project.hasMany(models.ProjectComments, {
       foreignKey: 'projectId',

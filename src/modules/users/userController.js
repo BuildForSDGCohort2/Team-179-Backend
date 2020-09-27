@@ -14,6 +14,7 @@ const sendMail = require('../../helpers/emailHelper');
 const roleController = require('./rolesController');
 
 function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
+  const { createRole } = roleController(Role);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
@@ -27,7 +28,7 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
         // eslint-disable-next-line prefer-const
         firstName, lastName, email, password,
       } = req.body;
-      const roles = ['clent'];
+      const roles = ['client'];
       // Checks if the user exists on the database e6b397ec-14ba-4cc6-8719-e9ff03d54139
       const dbUser = await User.findOne({ where: { email } });
 
@@ -67,7 +68,6 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
       };
       // Send email
       sendMail.send(msg);
-      const { createRole } = roleController(Role);
       await createRole(roles, results);
       // generate authentication token
       const token = otherHelper.generateJWT(otherHelper.toAuthJSON(results));
@@ -100,7 +100,7 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
       const { id } = req.payload.user;
       const user = await User.findOne({ where: { id } });
 
-      if (!user && (user.emailVerified === false)) {
+      if (!user) {
         return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user to associate this profile', null);
       }
       const createdAt = new Date();

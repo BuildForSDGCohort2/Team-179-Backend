@@ -3,8 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectInvestors = sequelize.define('ProjectInvestments', {
-    projectId: DataTypes.UUID,
-    userId: DataTypes.UUID,
     amountInvested: DataTypes.DECIMAL,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

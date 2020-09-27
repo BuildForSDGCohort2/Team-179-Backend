@@ -1,12 +1,10 @@
 // const debug = require('debug')('app:UserController');
 // const { Op } = require('sequelize');
-const {
-  farmSchema,
-} = require('./validation');
+const farmSchema = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 
-function farmController(Farm, Location) {
+function farmController(Farm, Location, User) {
   const createFarm = async (req, res, next) => {
     // checks if the user submits an empty request
     // debug(req.body);
@@ -30,8 +28,9 @@ function farmController(Farm, Location) {
         latitude,
       } = req.body;
       // Find request on the database
-      const id = req.payload.user;
-      const dbUser = await Farm.findOne({ where: { id } });
+      const { id } = req.payload.user;
+      // debug(id)
+      const dbUser = await User.findOne({ where: { id } });
 
       if (!dbUser) {
         return otherHelper.sendResponse(res, 404, false, null, null, 'No user to associate this farm', null);
@@ -51,19 +50,30 @@ function farmController(Farm, Location) {
         landSize,
         createdAt,
         updatedAt,
+        location: {
+          county,
+          longitude,
+          latitude,
+          geoLocation,
+          createdAt,
+          updatedAt,
+        },
+      }, {
+        include: {
+          model: Location,
+          as: 'location',
+        },
       });
-      // creates farm
-      const lResults = await Location.create({
-        county,
-        longitude,
-        latitude,
-        geoLocation,
-        createdAt,
-        updatedAt,
-      });
+      // KozB_qfEyUiFBJxDqt0eeA
+      // EW3oe0C_5ECWW9xSClxTXg
+      // PJCVaXbCw0mSG8mRQ8pVhw
+      // XG-p06eEUEaAcg-fwqvgPg
+      // 16Ntf93p5k-A3TwrNUQ2bA
+      // CgKn1oaQSUizC71xz6tqYg
+      // 2AfMApTF8EurzplFxkRnyA
+
       // Set associations
-      fResults.setUsers(dbUser);
-      fResults.setLocations(lResults);
+      fResults.setUser(dbUser);
 
       return otherHelper.sendResponse(res, 201, true, fResults, null, 'Farm created successfully', null);
     } catch (err) {
@@ -84,7 +94,7 @@ function farmController(Farm, Location) {
           }],
       });
       if (!farm) {
-        return otherHelper.sendResponse(res, 400, false, null, null, 'No firm found', null);
+        return otherHelper.sendResponse(res, 400, false, null, null, 'No farm found', null);
       }
       return otherHelper.sendResponse(res, 201, true, farm, null, 'Farm fetched successfully', null);
     } catch (err) {
@@ -98,7 +108,7 @@ function farmController(Farm, Location) {
       if (isEmpty(farms)) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'No farms available to show', null);
       }
-      return otherHelper.sendResponse(res, 201, true, farms, null, 'Firms fetched successfully', null);
+      return otherHelper.sendResponse(res, 201, true, farms, null, 'Farms fetched successfully', null);
     } catch (err) {
       return next(err);
     }
@@ -109,7 +119,7 @@ function farmController(Farm, Location) {
       delete req.body.id;
     }
     const { farmId } = req.params;
-    // validates the firms data from the user
+    // validates the farms data from the user
     await farmSchema.validateAsync(req.body);
 
     const {
@@ -126,13 +136,6 @@ function farmController(Farm, Location) {
       latitude,
     } = req.body;
     try {
-      // Confirm if the firm exists in the database
-      const farm = await Farm.findOne({
-        where: { id: farmId },
-      });
-      if (isEmpty(farm)) {
-        return otherHelper.sendResponse(res, 400, false, null, null, 'No farms available to show', null);
-      }
       const updatedAt = new Date();
       const geoLocation = { type: 'Point', coordinates: [latitude, longitude] };
       // Update location
@@ -146,7 +149,8 @@ function farmController(Farm, Location) {
         accessibility,
         landSize,
         updatedAt,
-      });
+      },
+      { where: { id: farmId } });
       // update location
       await Location.update({
         county,
@@ -154,8 +158,9 @@ function farmController(Farm, Location) {
         latitude,
         geoLocation,
         updatedAt,
-      });
-      return otherHelper.sendResponse(res, 201, true, fResults, null, 'Firms fetched successfully', null);
+      },
+      { where: { farmId } });
+      return otherHelper.sendResponse(res, 201, true, fResults, null, 'Farms fetched successfully', null);
     } catch (err) {
       return next(err);
     }
@@ -163,9 +168,15 @@ function farmController(Farm, Location) {
   // Delete a firm
   const deleteFirm = async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { farmId } = req.params;
       await Farm.destroy({
-        where: { id },
+        where: { id: farmId },
+        cascade: true,
+        include: [{
+          model: Location,
+          as: 'location',
+          cascade: true,
+        }],
       });
       return otherHelper.sendResponse(res, 204, true, {}, null, 'Farm deleted successfully', null);
     } catch (err) {

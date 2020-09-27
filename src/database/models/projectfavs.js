@@ -4,8 +4,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectFavs = sequelize.define('ProjectFavs', {
-    projectId: DataTypes.UUID,
-    userId: DataTypes.UUID,
     favourite: DataTypes.BOOLEAN,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

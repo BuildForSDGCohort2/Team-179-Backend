@@ -3,8 +3,6 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Farm = sequelize.define('Farm', {
-    farmerId: DataTypes.STRING,
-    locationId: DataTypes.UUID,
     images: DataTypes.ARRAY(DataTypes.STRING),
     landForm: DataTypes.STRING,
     landTenure: DataTypes.STRING,
@@ -18,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Farm.associate = (models) => {
     Farm.belongsTo(models.User, {
-      foreignKey: 'farmerId',
-      as: 'farmer',
+      foreignKey: 'userId',
+      as: 'User',
     });
     Farm.hasOne(models.Location, {
       foreignKey: 'farmId',

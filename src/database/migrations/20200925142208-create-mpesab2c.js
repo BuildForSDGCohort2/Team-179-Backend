@@ -34,29 +34,8 @@ module.exports = {
       TransactionID: {
         type: Sequelize.STRING,
       },
-      TransactionAmount: {
-        type: Sequelize.INTEGER,
-      },
-      TransactionReceipt: {
-        type: Sequelize.STRING,
-      },
-      B2CRecipientIsRegisteredCustomer: {
-        type: Sequelize.STRING,
-      },
-      B2CChargesPaidAccountAvailableFunds: {
-        type: Sequelize.DOUBLE,
-      },
-      ReceiverPartyPublicName: {
-        type: Sequelize.STRING,
-      },
-      TransactionCompletedDateTime: {
-        type: Sequelize.STRING,
-      },
-      B2CUtilityAccountAvailableFunds: {
-        type: Sequelize.DOUBLE,
-      },
-      B2CWorkingAccountAvailableFunds: {
-        type: Sequelize.DOUBLE,
+      ResultParameters: {
+        type: Sequelize.JSON,
       },
       createdAt: {
         allowNull: false,
