@@ -3,7 +3,7 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const ProjectInvestors = sequelize.define('ProjectInvestments', {
-    amountInvested: DataTypes.DECIMAL,
+    amountInvested: DataTypes.DOUBLE,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});

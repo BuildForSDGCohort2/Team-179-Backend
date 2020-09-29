@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 const debug = require('debug')('app:RoleController');
 // const { date } = require('@hapi/joi');
 // const { Mpesa } = require('mpesa-api');
@@ -7,7 +8,7 @@ const otherHelper = require('../../../helpers/otherhelpers');
 const config = require('../../../appconfigs/config')();
 const mpesaValidationSchema = require('./validation');
 
-function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
+function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInvestments) {
   const getToken = (req, res, next) => {
     try {
       return otherHelper.sendResponse(res, 200, true, req.accessToken, null, 'success', null);
@@ -18,7 +19,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
 
   // eslint-disable-next-line no-unused-vars
   const accessToken = async (req, res, next) => {
-    debug('initializing access token');
+    // debug('initializing access token');
     const url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
     const method = 'GET';
     const headers = {
@@ -40,41 +41,33 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
     // const { amount, mssidn } = req.body;
     try {
       const method = 'POST';
-      const headers = { Authorization: `Bearer ${req.accessToken.access_token}` };
-      debug(headers);
+      const headers = {
+        Authorization: `Bearer ${req.accessToken.access_token}`,
+      };
+      // debug(headers);
       const url = 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
       const json = {
-        ShortCode: 600754,
+        ShortCode: config.shortCode,
         ResponseType: 'Completed',
-        ConfirmationURL: 'https://agri-vesty.loca.lt/api/payments/c2b/confirm',
-        ValidationURL: 'https://agri-vesty.loca.lt/api/payments/c2b/validate',
+        ConfirmationURL: config.confirmUrl,
+        ValidationURL: config.validateUrl,
       };
       const response = await apiCallHelper(url, headers, json, method);
-      debug(response);
-      return otherHelper.sendResponse(res, 200, true, response, null, 'success', null);
+      const responseObject = JSON.parse(JSON.stringify(response.data));
+      debug(responseObject);
+      return otherHelper.sendResponse(
+        res, 200, true, responseObject, null, responseObject.ResponseDescription, null,
+      );
     } catch (err) {
       return next(err);
     }
   };
   const c2bSimulateData = {};
   const c2bSimulateDataCache = [];
-  const updatec2bSimulateDataCache = (
-    TransID, BillRefNumber, TransactionType, OrgAccountBalance,
-  ) => {
-    c2bSimulateDataCache.forEach((elem) => {
-      if (elem.TransID === TransID && elem.BillRefNumber === BillRefNumber) {
-        const data = elem;
-        data.TransactionType = TransactionType;
-        data.OrgAccountBalance = OrgAccountBalance;
-        return elem;
-      }
-      return false;
-    });
-  };
   const c2bvalidateURL = (req, res, next) => {
     try {
       const { body } = req;
-      debug(req.body);
+      // debug(req.body);
       const data = {
         TransactionType: body.TransactionType ? body.TransactionType : null,
         TransID: body.TransID ? body.TransID : null,
@@ -92,6 +85,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+      // debug(data);
       c2bSimulateDataCache.push(data);
       return res.status(200).json({
         ResultCode: 0,
@@ -104,19 +98,35 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
   const c2bconfirmURL = async (req, res, next) => {
     try {
       const { body } = req;
-      debug(req.body);
-
-      const transactData = updatec2bSimulateDataCache(
-        body.TransID, body.BillRefNumber, body.TransactionType, body.OrgAccountBalance,
-      );
+      // debug(req.body);
+      let transactData;
+      await c2bSimulateDataCache.forEach((elem) => {
+        // debug(elem);
+        if (!(elem.TransID === body.TransID) && !(elem.BillRefNumber === body.BillRefNumber)) {
+          return;
+        }
+        elem.TransactionType = body.TransactionType;
+        elem.OrgAccountBalance = body.OrgAccountBalance;
+        // eslint-disable-next-line consistent-return
+        transactData = elem;
+      });
+      // debug(transactData);
       const user = await User.findOne({ where: { id: c2bSimulateData.userId } });
       const project = await Project.findOne({ where: { id: c2bSimulateData.projectId } });
       const results = await MpesaC2B.create(transactData);
+      const invested = await ProjectInvestments.create({
+        amountInvested: body.TransAmount ? body.TransAmount : null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
       if (project) {
-        project.totalInvested += body.TransAmount;
+        Project.update({ totalInvested: project.totalInvested += parseFloat(body.TransAmount) },
+          { where: { id: c2bSimulateData.projectId } });
       }
-      results.setUsers(user);
-      results.setProjects(project);
+      results.setUser(user);
+      results.setProject(project);
+      invested.setUser(user);
+      invested.setProject(project);
       return res.status(200).json({
         ResultCode: 0,
         ResultDesc: 'success',
@@ -131,15 +141,13 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
     let { amount, phone } = req.body;
     const { projectId } = req.params;
     const { id } = req.payload.user;
-    c2bSimulateData.projectId = projectId;
-    c2bSimulateData.userId = id;
     try {
       if (!phone || !amount) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'please enter phone or amount', null);
       }
       phone = otherHelper.processPhone(phone);
       const body = {
-        ShortCode: 600754,
+        ShortCode: config.shortCode,
         CommandID: 'CustomerPayBillOnline',
         Amount: amount,
         Msisdn: phone,
@@ -152,7 +160,19 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
         Authorization: `Bearer ${token}`,
       };
       const response = await apiCallHelper(url, headers, body, method);
-      return otherHelper.sendResponse(res, 400, true, response, null, 'success', null);
+      const responseObject = JSON.parse(JSON.stringify(response.data));
+      c2bSimulateData.projectId = projectId;
+      c2bSimulateData.userId = id;
+      // if (response) {
+      //   setTimeout(() => {
+      //     c2bSimulateDataCache.forEach(
+      //       (elem) => otherHelper.sendResponse(res, 200, true, elem, null, elem.Trans, null),
+      //     );
+      //   }, 60000);
+      // }
+      return otherHelper.sendResponse(
+        res, 200, true, responseObject, null, responseObject.ResponseDescription, null,
+      );
     } catch (error) {
       return next(error);
     }
@@ -168,18 +188,18 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'please enter phone or amount', null);
       }
       phone = otherHelper.processPhone(phone);
-      debug(phone);
+      // debug(phone);
       await mpesaValidationSchema.validateAsync(req.body);
       const postBody = {
-        BusinessShortCode: 174379,
+        BusinessShortCode: config.lipaMpesaCode,
         Password: Buffer.from(`${config.lipaMpesaCode}${config.lipaMpesaKey}${otherHelper.getTimeStamp()}`).toString('base64'),
         Timestamp: otherHelper.getTimeStamp(),
         TransactionType: 'CustomerPayBillOnline',
         Amount: amount,
         PartyA: phone,
-        PartyB: 174379,
+        PartyB: config.lipaMpesaCode,
         PhoneNumber: phone,
-        CallBackURL: 'https://agri-vesty.loca.lt/api/payments/lnm/response',
+        CallBackURL: config.callbackUrl,
         AccountReference: 'LNMOAgri',
         TransactionDesc: '@SandboxTests',
       };
@@ -191,8 +211,9 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
         Authorization: `Bearer ${token}`,
       };
       const response = await apiCallHelper(url, headers, postBody, method);
-      debug(response);
-      if (typeof (response.ResponseCode) !== 'undefined' && response.ResponseCode === '0') {
+      const responseObject = JSON.parse(JSON.stringify(response.data));
+      // debug(responseObject);
+      if (typeof (responseObject.ResponseCode) !== 'undefined' && responseObject.ResponseCode === '0') {
         const requestID = response.MerchantRequestID;
         const transactionObj = {
           requestID,
@@ -201,7 +222,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
           callBackStatus: false,
           status: 'PendingCompletion',
         };
-        debug(transactionObj);
+        // debug(transactionObj);
         transactionType.push(transactionObj);
         data.trans = transactionObj;
         data.status = 'success';
@@ -212,13 +233,9 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
       return next(err);
     }
   };
-  const lipaNaMpesatransactionComplete = (transactData) => {
-    setTimeout(() => {
-      debug(transactData);
-    }, 60000);
-  };
+
   const lipaNaMpesatransaction = (req, res) => {
-    debug(req.body);
+    // debug(req.body);
     const requestID = req.body.Body.stkCallback.MerchantRequestID;
     let transData = {};
     const resultCode = req.body.Body.stkCallback.ResultCode;
@@ -249,9 +266,8 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
     transData.resultCode = resultCode;
     transData.resultDesc = resultDesc;
     /* Persist Processing Results to a MongoDB collection */
-    lipaNaMpesatransactionComplete(transData);
     /* Send ACK receipt back to the LNM API */
-    const message = { ResponseCode: '0', ResponseDesc: 'success' };
+    const message = { ResponseCode: 0, ResponseDesc: 'success' };
     res.status(200).json(message);
   };
 
@@ -260,44 +276,48 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
   const b2cPaymentRequest = async (req, res, next) => {
     // eslint-disable-next-line prefer-const
     let { amount, phone } = req.body;
+    const { id } = req.payload.user;
+    const { projectId } = req.params;
     // Validate if the phone number is a kenyan number and amount
     try {
       if (!phone || !amount) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'please enter phone or amount', null);
       }
       phone = otherHelper.processPhone(phone);
-      debug(phone);
-      await mpesaValidationSchema.validateAsync(req.body);
-      const project = await Project.findOne({ where: { id: c2bSimulateData.projectId } });
-      const { id } = req.payload.user;
-      const { projectId } = req.params;
-      debug(id, projectId);
+      // debug(phone);
+      await mpesaValidationSchema.validateAsync({ amount, phone });
+      // debug(id, projectId);
+      const project = await Project.findOne({ where: { id: projectId } });
+      // debug(project);
+      if (!project && !(project.totalInvested <= parseFloat(amount))) {
+        return otherHelper.sendResponse(res, 200, true, null, null, 'Your transaction amount exceeds the prject amount', null);
+      }
+      const body = {
+        InitiatorName: config.initiator,
+        SecurityCredential: config.mpesa_encoded,
+        CommandID: 'BusinessPayment',
+        Amount: amount,
+        PartyA: config.shortCode,
+        PartyB: phone,
+        Remarks: 'Withdrawal Money from Agrivesty',
+        QueueTimeOutURL: config.queueUrl,
+        ResultURL: config.resultUrl,
+        Occasion: 'Thank you',
+      };
+      const url = 'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest';
+      const method = 'POST';
+      const token = req.accessToken.access_token;
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const response = await apiCallHelper(url, headers, body, method);
+      const responseObject = JSON.parse(JSON.stringify(response.data));
+      // debug(response);
       b2cData.projectId = projectId;
       b2cData.userId = id;
-      if (project && (project.totalInvested <= amount)) {
-        const body = {
-          InitiatorName: 'testapi754',
-          SecurityCredential: config.mpesa_encoded,
-          CommandID: 'BusinessPayment',
-          Amount: amount,
-          PartyA: 600754,
-          PartyB: phone,
-          Remarks: 'Withdrawal Money for Project X',
-          QueueTimeOutURL: 'https://agri-vesty.loca.lt/api/payments/b2c/timeout',
-          ResultURL: 'https://agri-vesty.loca.lt/api/payments/b2c/success',
-          Occasion: 'Thank you',
-        };
-        const url = 'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest';
-        const method = 'POST';
-        const token = req.accessToken.access_token;
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-        const response = await apiCallHelper(url, headers, body, method);
-        debug(response);
-        return otherHelper.sendResponse(res, 200, true, response, null, 'Transaction successful', null);
-      }
-      return otherHelper.sendResponse(res, 200, true, null, null, 'Your transaction amount exceeds the prject amount', null);
+      return otherHelper.sendResponse(
+        res, 200, true, responseObject, null, responseObject.ResponseDescription, null,
+      );
     } catch (error) {
       return next(error);
     }
@@ -305,13 +325,13 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
   const b2cSuccesss = async (req, res, next) => {
     try {
       const { body } = req;
-      debug(req.body);
+      // debug(req.body);
       const data = {
-        resultDesc: body.ResultDesc ? body.ResultDesc : null,
+        resultDesc: body.Result.ResultDesc ? body.Result.ResultDesc : null,
         // eslint-disable-next-line max-len
-        OriginatorConversationID: body.OriginatorConversationID ? body.OriginatorConversationID : null,
-        ConversationID: body.ConversationID ? body.ConversationID : null,
-        TransactionID: body.TransactionID ? body.TransactionID : null,
+        OriginatorConversationID: body.Result.OriginatorConversationID ? body.Result.OriginatorConversationID : null,
+        ConversationID: body.Result.ConversationID ? body.Result.ConversationID : null,
+        TransactionID: body.Result.TransactionID ? body.Result.TransactionID : null,
         ResultParameters: body.Result.ResultParameters ? body.Result.ResultParameters : null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -323,14 +343,16 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
       const { ResultParameter } = data.ResultParameters;
       if (project) {
         ResultParameter.forEach((item) => {
-          if (item === 'TransactionAmount') {
-            project.totalInvested -= item.value;
+          if (item.Key === 'TransactionAmount') {
+            Project.update({
+              totalInvested: project.totalInvested -= parseFloat(item.Value),
+            }, { where: { id: b2cData.projectId } });
           }
         });
       }
-      results.setUsers(user);
-      results.setProjects(project);
-      debug(b2cData);
+      results.setUser(user);
+      results.setProject(project);
+      // debug(b2cDataCache);
       return res.status(200).json({
         ResultCode: 0,
         ResultDesc: 'success',
@@ -341,14 +363,14 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
   };
   const b2cTimeout = async (req, res, next) => {
     try {
-      debug(req.body);
+      // debug(req.body);
       const { body } = req;
       const data = {
-        resultDesc: body.ResultDesc ? body.ResultDesc : null,
+        resultDesc: body.Result.ResultDesc ? body.Result.ResultDesc : null,
         // eslint-disable-next-line max-len
-        OriginatorConversationID: body.OriginatorConversationID ? body.OriginatorConversationID : null,
-        ConversationID: body.ConversationID ? body.ConversationID : null,
-        TransactionID: body.TransactionID ? body.TransactionID : null,
+        OriginatorConversationID: body.Result.OriginatorConversationID ? body.Result.OriginatorConversationID : null,
+        ConversationID: body.Result.ConversationID ? body.Result.ConversationID : null,
+        TransactionID: body.Result.TransactionID ? body.Result.TransactionID : null,
         ResultParameters: body.Result.ResultParameters ? body.Result.ResultParameters : null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -357,9 +379,9 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
       const user = await User.findOne({ where: { id: b2cData.userId } });
       const project = await Project.findOne({ where: { id: b2cData.projectId } });
       const results = MpesaB2C.create(data);
-      results.setUsers(user);
-      results.setProjects(project);
-      debug(b2cData);
+      results.setUser(user);
+      results.setProject(project);
+      // debug(b2cDataCache);
       return res.status(200).json({
         ResultCode: 0,
         ResultDesc: 'success',
@@ -368,25 +390,17 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project) {
       return next(err);
     }
   };
-  //   /*LocalCache Listener for Updating appUI*/
-  // app.post("/listener", function(req,res) {
-  //   let requestID = req.body.requestID;
-  //   for(let entry of localCache) {
-  //     if(entry.requestID == requestID) {
-  //       if(entry.callBackStatus) {
-  //         res.json(entry);
-  //         /* Remove the transactionObject because as it's already
-  //            been added to our mongodb collection */
-  //         localCache = localCache.filter((entry)=>{
-  //           return entry.requestID != requestID;
-  //         });
-  //       } else {
-  //         //return entry only
-  //         res.json(entry);
-  //       }
-  //     }
+  // // c2bLocalCache Listener for Updating appUI
+  // const c2bListener = (req, res, next) => {
+  //   try {
+  //     setTimeout(() => {
+  //       c2bSimulateDataCache.forEach(
+  //         (elem) => otherHelper.sendResponse(res, 200, true, elem, null, elem.Trans, null));
+  //     }, 60000);
+  //   } catch (err) {
+  //     next(err);
   //   }
-  // });
+  // };
   const controller = {
     c2bregistrPaymentURL,
     c2bvalidateURL,

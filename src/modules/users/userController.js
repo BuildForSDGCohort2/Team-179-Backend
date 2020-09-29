@@ -13,7 +13,9 @@ const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
 const roleController = require('./rolesController');
 
-function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
+function UserController(
+  User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+) {
   const { createRole } = roleController(Role);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
@@ -269,6 +271,18 @@ function UserController(User, Role, Profile, RoleAuth, Farm, Location) {
                 model: Location,
                 as: 'location',
               }],
+          },
+          {
+            model: Project,
+            as: 'projects',
+          },
+          {
+            model: ProjectFavs,
+            as: 'favourites',
+          },
+          {
+            model: ProjectComments,
+            as: 'comments',
           },
         ],
       });

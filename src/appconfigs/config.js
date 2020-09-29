@@ -5,7 +5,7 @@ const configs = () => {
   const values = ['development', 'production', 'test', 'provision'];
   const envVarsSchema = Joi.object({
     NODE_ENV: Joi.string().allow(...values).default('development'),
-    PORT: Joi.number().default(4040),
+    PORT: Joi.number().default(4000),
     JWT_SECRET: Joi.string().required().description('JWT Secret required to sign'),
     DEV_DATABASE_URL: Joi.string().required().description('Postgres DB url'),
     TEST_DATABASE_URL: Joi.string().required().description('Postgres DB url'),
@@ -27,6 +27,13 @@ const configs = () => {
     LIPA_NA_MPESA_SHORT_CODE: Joi.number().required().description('Lipa na Mpesa short coderequired'),
     LIPA_NA_MPESA_PASS_KEY: Joi.string().required().description('Lipa na Mpesa pass key required'),
     MPESA_ENCODED: Joi.string().required().description('Mpesa security credentials required'),
+    MPESA_SHORT_CODE: Joi.number().required().description('Mpesa short code required'),
+    MPESA_INITIATOR: Joi.string().required().description('Mpesa initiator name required'),
+    QUEUE_TIMEOUT_URL: Joi.string().required().description('Mpesa queue timeout url required'),
+    RESULT_URL: Joi.string().required().description('Mpesa result url required'),
+    CALLBACK_URL: Joi.string().required().description('Mpesa callback url required'),
+    CONFIRMATION_URL: Joi.string().required().description('Mpesa confirmation url required'),
+    VALIDATION_URL: Joi.string().required().description('Mpesa validation url required'),
   }).unknown()
     .required();
 
@@ -60,6 +67,13 @@ const configs = () => {
     lipaMpesaCode: envVars.LIPA_NA_MPESA_SHORT_CODE,
     lipaMpesaKey: envVars.LIPA_NA_MPESA_PASS_KEY,
     mpesa_encoded: envVars.MPESA_ENCODED,
+    shortCode: envVars.MPESA_SHORT_CODE,
+    initiator: envVars.MPESA_INITIATOR,
+    queueUrl: envVars.QUEUE_TIMEOUT_URL,
+    resultUrl: envVars.RESULT_URL,
+    callbackUrl: envVars.CALLBACK_URL,
+    confirmUrl: envVars.CONFIRMATION_URL,
+    validateUrl: envVars.VALIDATION_URL,
   };
   return config;
 };

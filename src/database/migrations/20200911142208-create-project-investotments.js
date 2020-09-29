@@ -9,18 +9,16 @@ module.exports = {
       },
       projectId: {
         type: Sequelize.UUID,
-        allowNull: false,
         references: { model: 'Projects', key: 'id' },
         onDelete: 'CASCADE',
       },
       userId: {
         type: Sequelize.UUID,
-        allowNull: false,
         references: { model: 'Users', key: 'id' },
         onDelete: 'CASCADE',
       },
       amountInvested: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       createdAt: {
         allowNull: false,

@@ -5,7 +5,7 @@ const {
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 
-function projectController(Project, User, Farm) {
+function projectController(Project, User, Farm, Location, ProjectComments, ProjectFavs) {
   const createProject = async (req, res, next) => {
     // checks if the user submits an empty request
     // debug(req.body);
@@ -19,6 +19,7 @@ function projectController(Project, User, Farm) {
         title,
         description,
         imageUrl,
+        targetCost,
       } = req.body;
       // Find request on the database
       const { id } = req.payload.user;
@@ -39,17 +40,17 @@ function projectController(Project, User, Farm) {
         dateStarted: new Date(),
         dateEnded: new Date(),
         imageUrl,
+        active: false,
+        targetCost,
+        totalInvested: 0,
+        isWithdrawable: false,
         createdAt,
         updatedAt,
       });
+
       // Set associations
       fResults.setUser(dbUser);
       fResults.setFarm(farm);
-      // status,
-      //   target,
-      //   progress,
-      //   totalInvested,
-      //   isWithdrawable,
       return otherHelper.sendResponse(res, 201, true, fResults, null, 'project created successfully', null);
     } catch (err) {
       return next(err);
@@ -62,6 +63,30 @@ function projectController(Project, User, Farm) {
       // debug(req.payload);
       const project = await Project.findOne({
         where: { id: projectId },
+        include: [
+          {
+            model: User,
+            as: 'User',
+            attributes: ['email', 'displayName'],
+          },
+          {
+            model: Farm,
+            as: 'farm',
+            include: [
+              {
+                model: Location,
+                as: 'location',
+              }],
+          },
+          {
+            model: ProjectFavs,
+            as: 'favourites',
+          },
+          {
+            model: ProjectComments,
+            as: 'comments',
+          },
+        ],
       });
       if (!project) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'No project found', null);
@@ -73,8 +98,9 @@ function projectController(Project, User, Farm) {
   };
   // finds projects from the database
   const findAllProjects = async (req, res, next) => {
+    const { offset, limit } = req.params;
     try {
-      const projects = await Project.findAll({});
+      const projects = await Project.findAll({ offset, limit });
       if (isEmpty(projects)) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'No projects available to show', null);
       }
@@ -93,7 +119,14 @@ function projectController(Project, User, Farm) {
     await projectSchema.validateAsync(req.body);
 
     const {
-      images,
+      title,
+      description,
+      dateEnded,
+      imageUrl,
+      status,
+      targetCost,
+      progress,
+      isWithdrawable,
     } = req.body;
     try {
       // Confirm if the firm exists in the database
@@ -106,20 +139,28 @@ function projectController(Project, User, Farm) {
       const updatedAt = new Date();
       // Update location
       const fResults = await project.update({
-        images,
+        title,
+        description,
+        dateEnded,
+        imageUrl,
+        status,
+        targetCost,
+        progress,
+        isWithdrawable,
         updatedAt,
-      });
+      },
+      { where: { id: projectId } });
       return otherHelper.sendResponse(res, 201, true, fResults, null, 'Projects fetched successfully', null);
     } catch (err) {
       return next(err);
     }
   };
-  // Delete a firm
+  // Delete a project
   const deleteProject = async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { projectId } = req.params;
       await Project.destroy({
-        where: { id },
+        where: { projectId },
       });
       return otherHelper.sendResponse(res, 204, true, {}, null, 'Project deleted successfully', null);
     } catch (err) {

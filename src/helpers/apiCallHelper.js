@@ -3,21 +3,17 @@ const axios = require('axios');
 // const debug = require('debug')('app:APICallController');
 // const errorHelper = require('./errorHelper');
 
-module.exports = async (requestUrl, headers, json, requestMethod) => {
+module.exports = async (requestUrl, reqheaders, json, requestMethod) => {
   const options = {
-    headers,
+    method: requestMethod,
+    url: requestUrl,
+    data: json,
+    headers: reqheaders,
+    // eslint-disable-next-line no-unused-vars
+    validateStatus: (status) => true,
   };
   try {
-    // axiosRetry(axios, {
-    //   retries: 3,
-    //   retryDelay: axiosRetry.exponentialDelay,
-    //   retryCondition: (axioserr) => true,
-    // });
-    let results;
-    if (requestMethod === 'POST') {
-      results = await axios.post(requestUrl, json, options);
-    }
-    results = await axios.get(requestUrl, options);
+    const results = await axios(options);
     return results;
   } catch (err) {
     if (err.response) {

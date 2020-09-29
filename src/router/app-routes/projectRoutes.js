@@ -2,7 +2,7 @@ const express = require('express');
 const projectController = require('../../modules/project/projectsController');
 const auth = require('../../middleware/auth');
 
-function farmRoutes(Project, User, Farm) {
+function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs) {
   const router = express.Router();
   const {
     createProject,
@@ -10,7 +10,7 @@ function farmRoutes(Project, User, Farm) {
     findAllProjects,
     deleteProject,
     updateProject,
-  } = projectController(Project, User, Farm);
+  } = projectController(Project, User, Farm, Location, ProjectComments, ProjectFavs);
 
   /**
    * @route POST api/farm/create-farm
@@ -31,7 +31,7 @@ function farmRoutes(Project, User, Farm) {
   * @description get farm details
   * @access Private
  */
-  router.route('projects/:projectId').get(auth, findProject);
+  router.route('/projects/:projectId').get(auth, findProject);
 
   /**
   * @route Put api/farms/list

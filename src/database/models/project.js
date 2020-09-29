@@ -9,10 +9,10 @@ module.exports = (sequelize, DataTypes) => {
     dateStarted: DataTypes.DATE,
     dateEnded: DataTypes.DATE,
     imageUrl: DataTypes.STRING,
-    status: DataTypes.BOOLEAN,
-    targetCost: DataTypes.DECIMAL,
-    progress: DataTypes.DECIMAL,
-    totalInvested: DataTypes.DECIMAL,
+    active: DataTypes.BOOLEAN,
+    targetCost: DataTypes.DOUBLE,
+    progress: DataTypes.DOUBLE,
+    totalInvested: DataTypes.DOUBLE,
     isWithdrawable: DataTypes.BOOLEAN,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'User',
     });
-    Project.belongsTo(models.User, {
+    Project.belongsTo(models.Farm, {
       foreignKey: 'farmId',
       as: 'farm',
     });

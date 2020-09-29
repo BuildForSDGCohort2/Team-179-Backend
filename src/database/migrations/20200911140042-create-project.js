@@ -34,20 +34,20 @@ module.exports = {
       imageUrl: {
         type: Sequelize.STRING,
       },
-      status: {
+      active: {
         type: Sequelize.BOOLEAN,
       },
       targetCost: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       progress: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       isWithdrawable: {
         type: Sequelize.BOOLEAN,
       },
       totalInvested: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       createdAt: {
         allowNull: false,
