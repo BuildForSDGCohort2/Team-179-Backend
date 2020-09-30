@@ -1,41 +1,54 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "version": "0.0.1",
     "title": "Welcome Agri-Vesty API",
-    "description": "Agri-vesty leverages networks for greater reach and exposure to collectively raise capital for farmers through investors",
+    "description": "Agri-vesty is a crowdfunding Platform. The aim of Agri-vesty is to help farmers to raise farming capital. In this platform, a user can either create a crowdfunding farming project or invest money towards their favorite farming projects.",
+    "contact": {
+      "name": "Team-179-Group-A",
+      "url": "https://agri-vesty.herokuapp.com/"
+    },
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     },
-    "contact": {
-      "name": "Team-179-Group-A",
-      "url": "https://api_url_production/"
-    }
+    "version": "0.0.1"
   },
   "servers": [
     {
-      "url": "http://localhost:4000/",
-      "description": "Local server"
+      "url": "http://localhost:{port}/{basePath}",
+      "description": "Local server",
+      "variables": {
+        "port": {
+          "enum": [
+            "8443",
+            "443"
+          ],
+          "default": "4000"
+        },
+        "basePath": {
+          "default": "api"
+        }
+      }
     },
     {
-      "url": "https://api_url_testing",
-      "description": "Testing server"
-    },
-    {
-      "url": "https://api_url_production",
-      "description": "Production server"
+      "url": "https://agri-vesty.herokuapp.com/{basePath}",
+      "description": "Production server",
+      "variables": {
+        "basePath": {
+          "default": "api"
+        }
+      }
     }
+
   ],
-  "basePath": "/api/",
   "tags": [
     {
       "name": "Users",
-      "description": "CRUD API endpoints for users"
+      "description": "Users endpoints"
     },
     {
       "name": "Auth",
-      "description": "API endpoints for auth"
+      "description": "API auth endpoints"
     }
   ],
   "schemes": [
@@ -53,6 +66,133 @@
       "type": "apiKey",
       "in": "header",
       "name": "Authorization"
+    },
+    "bearerAuth": {
+      "type": "http",
+      "in": "header",
+      "name": "Authorization"
+    }
+  },
+  "components": {
+    "schemas": {
+      "GeneralError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "createdAt": {
+            "type": "date"
+          },
+          "updatedAt": {
+            "type": "date"
+          }
+        }
+      },
+      "Auth": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "skipParam": {
+        "name": "offset",
+        "in": "query",
+        "description": "number of items to skip",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "limitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "max records to return",
+        "required": true,
+        "schema" : {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "id": {
+        "name": "id",
+        "in": "path",
+        "description": "ID of user to use",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "simple"
+      },
+      "authorization": {
+        "name": "Authorization",
+        "in": "header",
+        "description": "token to be passed as a header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "simple"
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Entity not found."
+      },
+      "IllegalInput": {
+        "description": "Illegal input for operation."
+      },
+      "GeneralError": {
+        "description": "General Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/GeneralError"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "You are not authorized to access this resources."
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
     }
   },
   "paths": {
@@ -124,7 +264,7 @@
         }
       }
     },
-    "/auth/register": {
+    "/user/register": {
       "post": {
         "tags": [
           "Auth"
@@ -203,68 +343,120 @@
           }
         }
       }
-    }
-  },
-  "components": {
-    "schemas": {
-      "User": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "uniqueItems": true
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "uniqueItems": true
-          },
-          "createdAt": {
-            "type": "date"
-          },
-          "updatedAt": {
-            "type": "date"
+    },
+    "/users/list": {
+      "get": {
+        "description": "Returns all users from the api and user must have an auth token to access",
+        "responses": {
+          "200": {
+            "description": "A list of users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
           }
         }
-      },
-      "Users": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
+      }
+    },
+    "/user":{
+      "get": {
+        "description": "Returns pets based on ID",
+        "summary": "Find pets by ID",
+        "operationId": "getPetsById",
+        "responses": {
+          "200": {
+            "description": "pet response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "error payload",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "tags": [
+        "pet"
+      ],
+      "summary": "Updates a pet in the store with form data",
+      "operationId": "updatePetWithForm",
+      "parameters": [
+        {
+          "name": "petId",
+          "in": "path",
+          "description": "ID of pet that needs to be updated",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/x-www-form-urlencoded": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Updated name of the pet",
+                  "type": "string"
+                },
+                "status": {
+                  "description": "Updated status of the pet",
+                  "type": "string"
+                }
+              },
+              "required": ["status"]
             }
           }
         }
       },
-      "Auth": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/User"
+      "responses": {
+        "200": {
+          "description": "Pet updated.",
+          "content": {
+            "application/json": {},
+            "application/xml": {}
+          }
+        },
+        "405": {
+          "description": "Method Not Allowed",
+          "content": {
+            "application/json": {},
+            "application/xml": {}
           }
         }
       },
-      "Error": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "internal_code": {
-            "type": "string"
-          }
+      "security": [
+        {
+          "petstore_auth": [
+            "write:pets",
+            "read:pets"
+          ]
         }
-      }
+      ]
     }
   }
 }

@@ -7,20 +7,21 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
+      userId: {
+        type: Sequelize.UUID,
+        references: { model: 'Users', key: 'id' },
+        onDelete: 'CASCADE',
+      },
+      farmId: {
+        type: Sequelize.UUID,
+        references: { model: 'Farms', key: 'id' },
+        onDelete: 'CASCADE',
+      },
       title: {
         type: Sequelize.STRING,
       },
       description: {
         type: Sequelize.TEXT,
-      },
-      farmerId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: { model: 'Users', key: 'id' },
-        onDelete: 'CASCADE',
-      },
-      cost: {
-        type: Sequelize.DECIMAL,
       },
       dateStarted: {
         type: Sequelize.DATE,
@@ -33,8 +34,20 @@ module.exports = {
       imageUrl: {
         type: Sequelize.STRING,
       },
+      active: {
+        type: Sequelize.BOOLEAN,
+      },
+      targetCost: {
+        type: Sequelize.DOUBLE,
+      },
+      progress: {
+        type: Sequelize.DOUBLE,
+      },
+      isWithdrawable: {
+        type: Sequelize.BOOLEAN,
+      },
       totalInvested: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       createdAt: {
         allowNull: false,

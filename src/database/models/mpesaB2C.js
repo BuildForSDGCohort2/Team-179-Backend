@@ -15,11 +15,11 @@ module.exports = (sequelize, DataTypes) => {
   MpesaB2C.associate = (models) => {
     MpesaB2C.belongsTo(models.User, {
       foreignKey: 'userId',
-      as: 'user',
+      as: 'User',
     });
     MpesaB2C.belongsTo(models.Project, {
       foreignKey: 'projectId',
-      as: 'project',
+      as: 'Project',
     });
   };
   return MpesaB2C;

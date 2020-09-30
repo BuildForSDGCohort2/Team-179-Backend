@@ -2,7 +2,7 @@ const express = require('express');
 const farmController = require('../../modules/farm/farmController');
 const auth = require('../../middleware/auth');
 
-function farmRoutes(Farm, Location) {
+function farmRoutes(Farm, Location, User) {
   const router = express.Router();
   const {
     createFarm,
@@ -10,7 +10,7 @@ function farmRoutes(Farm, Location) {
     findAllFarms,
     deleteFirm,
     updateFarms,
-  } = farmController(Farm, Location);
+  } = farmController(Farm, Location, User);
 
   /**
    * @route POST api/farm/create-farm
@@ -44,7 +44,7 @@ function farmRoutes(Farm, Location) {
    * @description Delete farm
    * @access Private
   */
-  router.route('/farm/delete').delete(auth, deleteFirm);
+  router.route('/farm/delete/:farmId').delete(auth, deleteFirm);
   return router;
 }
 

@@ -13,7 +13,7 @@
     "lint-fix": "npm run lint -- --fix",
     "pretest": "npm run lint",
     "lint-init": "eslint -- --init",
-    "share": "lt --port 4000 --subdomain agri-vesty",
+    "share": "lt --port 4000 --subdomain agrivestyapp",
     "security-check": "npm audit"
   },
   "repository": {

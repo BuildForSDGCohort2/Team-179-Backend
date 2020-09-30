@@ -2,7 +2,7 @@ const express = require('express');
 const mpesaController = require('../../modules/payment/mpesa/mpesaController');
 const auth = require('../../middleware/auth');
 
-function PaymentRoutes() {
+function PaymentRoutes(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInvestments) {
   const router = express.Router();
   const {
     c2bregistrPaymentURL,
@@ -16,14 +16,14 @@ function PaymentRoutes() {
     b2cPaymentRequest,
     b2cSuccesss,
     b2cTimeout,
-  } = mpesaController();
+  } = mpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInvestments);
 
   /**
    * @route POST api/payments/c2b/register
    * @description register URLS
    * @access Private
   */
-  router.route('/payments/c2b/register').post(accessToken, c2bregistrPaymentURL);
+  router.route('/payments/c2b/register').get(auth, accessToken, c2bregistrPaymentURL);
 
   /**
   * @route Put api/payments/c2b/validation
@@ -43,7 +43,7 @@ function PaymentRoutes() {
   * @description get success url
   * @access Private
  */
-  router.route('/payments/c2b/simulate').post(auth, accessToken, c2bSimulatePayments);
+  router.route('/payments/:projectId/c2b/simulate').post(auth, accessToken, c2bSimulatePayments);
   /**
     * @route Put api/payments/access-token
     * @description get token
@@ -67,7 +67,7 @@ function PaymentRoutes() {
   * @description withdraw from our lipa na mpesa
   * @access Private
  */
-  router.route('/payments/b2c/requestPayment').post(auth, accessToken, b2cPaymentRequest);
+  router.route('/payments/:projectId/b2c/requestPayment').post(auth, accessToken, b2cPaymentRequest);
   /**
   * @route Put api/payments/b2c/timeout
   * @description post timeout data from B2C Mpesa API

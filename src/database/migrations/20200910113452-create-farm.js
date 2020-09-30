@@ -7,11 +7,13 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
-      farmerId: {
+      userId: {
         type: Sequelize.UUID,
-        allowNull: false,
         references: { model: 'Users', key: 'id' },
         onDelete: 'CASCADE',
+      },
+      images: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
       landForm: {
         type: Sequelize.STRING,
