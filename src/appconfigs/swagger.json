@@ -39,7 +39,6 @@
         }
       }
     }
-
   ],
   "tags": [
     {
@@ -49,6 +48,18 @@
     {
       "name": "Auth",
       "description": "API auth endpoints"
+    },
+    {
+      "name": "Projects",
+      "description": "Project endpoints"
+    },
+    {
+      "name": "Farm",
+      "description": "Farm endpoints"
+    },
+    {
+      "name": "Payment",
+      "description": "Payment endpoints"
     }
   ],
   "schemes": [
@@ -61,18 +72,6 @@
   "produces": [
     "application/json"
   ],
-  "securityDefinitions": {
-    "AuthHeader": {
-      "type": "apiKey",
-      "in": "header",
-      "name": "Authorization"
-    },
-    "bearerAuth": {
-      "type": "http",
-      "in": "header",
-      "name": "Authorization"
-    }
-  },
   "components": {
     "schemas": {
       "GeneralError": {
@@ -112,6 +111,39 @@
           }
         }
       },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "items": [
+              "string"
+            ]
+          },
+          "bios": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "idNumber": {
+            "type": "string"
+          },
+          "kraPin": {
+            "type": "string"
+          },
+          "certificateOfConduct": {
+            "type": "string"
+          }
+        }
+      },
       "Auth": {
         "type": "object",
         "properties": {
@@ -140,20 +172,10 @@
         "in": "query",
         "description": "max records to return",
         "required": true,
-        "schema" : {
+        "schema": {
           "type": "integer",
           "format": "int32"
         }
-      },
-      "id": {
-        "name": "id",
-        "in": "path",
-        "description": "ID of user to use",
-        "required": true,
-        "schema": {
-          "type": "string"
-        },
-        "style": "simple"
       },
       "authorization": {
         "name": "Authorization",
@@ -167,13 +189,7 @@
       }
     },
     "responses": {
-      "NotFound": {
-        "description": "Entity not found."
-      },
-      "IllegalInput": {
-        "description": "Illegal input for operation."
-      },
-      "GeneralError": {
+      "Error": {
         "description": "General Error",
         "content": {
           "application/json": {
@@ -187,11 +203,18 @@
         "description": "You are not authorized to access this resources."
       }
     },
-    "securitySchemes": {
-      "api_key": {
-        "type": "apiKey",
-        "name": "api_key",
-        "in": "header"
+    "securitySchemes":{
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "Bearer": {
+        "description": "JWT Token",
+        "name": "Authorization",
+        "type": "http",
+        "scheme": "bearer",
+        "in": "header",
+        "bearerFormat": "JWT"
       }
     }
   },
@@ -202,29 +225,47 @@
           "Auth"
         ],
         "operationId": "login",
-        "description": "Login user into the system",
-        "parameters": [
-          {
-            "name": "auth",
-            "in": "body",
-            "description": "User authentication details",
-            "schema": {
-              "type": "object",
-              "required": [
-                "email",
-                "password"
-              ],
-              "properties": {
-                "email": {
-                  "type": "string"
+        "summary": "Login user into the system",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
                 },
-                "password": {
-                  "type": "string"
-                }
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "User is loggedin",
@@ -233,15 +274,8 @@
                 "schema": {
                   "$ref": "#/components/schemas/Auth"
                 },
-                "example":{
-                  "data":{
-                    "id": "932mifdfwe92098ru9",
-                    "firstName": "Kennedy",
-                    "lastName": "Mbogo",
-                    "email": "mbogo@gmail.com",
-                    "createdAt": "8823772882",
-                    "updatedAt": "63576358735"
-                  },
+                "example": {
+                  "message": "Logged in successfuly",
                   "token": "mnamsnasmanmsnamsnasmasam"
                 }
               }
@@ -252,7 +286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/responses/Error"
                 },
                 "example": {
                   "message": "Email is missing",
@@ -270,41 +304,72 @@
           "Auth"
         ],
         "operationId": "register",
-        "description": "Register user into the system",
-        "parameters": [
-          {
-            "name": "auth",
-            "in": "body",
-            "description": "User registration details",
-            "schema": {
-              "type": "object",
-              "required": [
-                "firstName",
-                "lastName",
-                "email",
-                "password",
-                "confirmPassword"
-              ],
-              "properties": {
-                "firstName": {
-                  "type": "string"
+        "summary": "Register user into the system",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password"
+                  }
                 },
-                "lastName": {
-                  "type": "string"
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password",
+                  "confirmPassword"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  }
                 },
-                "email": {
-                  "type": "string"
-                },
-                "password": {
-                  "type": "string"
-                },
-                "confirmPassword": {
-                  "type": "string"
-                }
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "password",
+                  "confirmPassword"
+                ]
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "New user registered successfully",
@@ -313,15 +378,8 @@
                 "schema": {
                   "$ref": "#/components/schemas/Auth"
                 },
-                "example":{
-                  "data":{
-                    "id": "932mifdfwe92098ru9",
-                    "firstName": "Kennedy",
-                    "lastName": "Mbogo",
-                    "email": "mbogo@gmail.com",
-                    "createdAt": "8823772882",
-                    "updatedAt": "63576358735"
-                  },
+                "example": {
+                  "message": "User Registered successfully",
                   "token": "mnamsnasmanmsnamsnasmasam"
                 }
               }
@@ -332,7 +390,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/responses/Error"
                 },
                 "example": {
                   "message": "Email is missing",
@@ -346,7 +404,19 @@
     },
     "/users/list": {
       "get": {
-        "description": "Returns all users from the api and user must have an auth token to access",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Returns all users from the api and user must have an auth token to access",
+        "operationId": "getAllUsers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limitParam"
+          },
+          {
+            "$ref": "#/components/parameters/skipParam"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A list of users.",
@@ -360,35 +430,566 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
-    "/user":{
+    "/user/profile": {
       "get": {
+        "tags": [
+          "Users"
+        ],
         "description": "Returns pets based on ID",
-        "summary": "Find pets by ID",
-        "operationId": "getPetsById",
+        "summary": "Find user by payload ID",
+        "operationId": "getUserById",
         "responses": {
           "200": {
-            "description": "pet response",
+            "description": "A list of users.",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Pet"
+                    "$ref": "#/components/schemas/User"
                   }
                 }
               }
             }
           },
           "default": {
-            "description": "error payload",
+            "description": "Unexpected error",
             "content": {
-              "text/html": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorModel"
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/create-profile": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "createProfile",
+        "summary": "Create user additional information",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "bios": {
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "idNumber": {
+                    "type": "string"
+                  },
+                  "kraPin": {
+                    "type": "string"
+                  },
+                  "certificateOfConduct": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "phoneNumber",
+                  "gender",
+                  "dateOfBirth",
+                  "idNumber",
+                  "kraPin"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "string"
+                  },
+                  "bios": {
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2018-06-22"
+                  },
+                  "idNumber": {
+                    "type": "string"
+                  },
+                  "kraPin": {
+                    "type": "string"
+                  },
+                  "certificateOfConduct": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "phoneNumber",
+                  "gender",
+                  "dateOfBirth",
+                  "idNumber",
+                  "kraPin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New profile created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Profile created succeessfully",
+                  "data": {
+                    "$ref": "#/components/schemas/Profile"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "No user to associate with that profile",
+                  "internal_code": "missing_parameters"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/update-profile/{profileId}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "updateProfile",
+        "summary": "Update user information",
+        "parameters": [
+          {
+            "name": "profileId",
+            "in": "path",
+            "description": "User Profile ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "bios": {
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "idNumber": {
+                    "type": "string"
+                  },
+                  "kraPin": {
+                    "type": "string"
+                  },
+                  "certificateOfConduct": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "roles",
+                  "phoneNumber",
+                  "gender",
+                  "dateOfBirth",
+                  "idNumber",
+                  "kraPin"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "bios": {
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "idNumber": {
+                    "type": "string"
+                  },
+                  "kraPin": {
+                    "type": "string"
+                  },
+                  "certificateOfConduct": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "roles",
+                  "phoneNumber",
+                  "gender",
+                  "dateOfBirth",
+                  "idNumber",
+                  "kraPin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Profile updated succeessfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/change-password": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "changePassword",
+        "summary": "Change user password",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "oldPassword",
+                  "password",
+                  "confirmPassword"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "password",
+                  "confirmPassword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Changed Password successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Changed Password successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/forgot-password": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "forgotPassword",
+        "summary": "reset password",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent to your email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Email sent to your email"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
                 }
               }
             }
@@ -396,67 +997,425 @@
         }
       }
     },
-    "/": {
-      "tags": [
-        "pet"
-      ],
-      "summary": "Updates a pet in the store with form data",
-      "operationId": "updatePetWithForm",
-      "parameters": [
-        {
-          "name": "petId",
-          "in": "path",
-          "description": "ID of pet that needs to be updated",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "requestBody": {
-        "content": {
-          "application/x-www-form-urlencoded": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "description": "Updated name of the pet",
-                  "type": "string"
+    "/user/password-reset": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "resetPassword",
+        "summary": "Reset user password",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "code": {
+                    "type": "string"
+                  }
                 },
-                "status": {
-                  "description": "Updated status of the pet",
-                  "type": "string"
+                "required": [
+                  "email",
+                  "password",
+                  "confirmPassword",
+                  "code"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "confirmPassword",
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reset Password successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Reset Password successful"
                 }
-              },
-              "required": ["status"]
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
             }
           }
         }
-      },
-      "responses": {
-        "200": {
-          "description": "Pet updated.",
+      }
+    },
+    "/user/verify-email": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "verifyEmail",
+        "summary": "Verify user email",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Email Verification Code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
           "content": {
-            "application/json": {},
-            "application/xml": {}
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
           }
         },
-        "405": {
-          "description": "Method Not Allowed",
-          "content": {
-            "application/json": {},
-            "application/xml": {}
+        "responses": {
+          "200": {
+            "description": "Email Verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Email Verified successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
           }
-        }
-      },
-      "security": [
-        {
-          "petstore_auth": [
-            "write:pets",
-            "read:pets"
-          ]
-        }
-      ]
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/users/resend-verification": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "resendVerification",
+        "summary": "Resend Email Verification",
+        "responses": {
+          "200": {
+            "description": "Email Verification Sent Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "Email Verification Sent Successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/delete": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "deleteUser",
+        "summary": "Delete User",
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "success": true,
+                  "message": "User deleted suscessfully"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbiden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/{farmId}/projects/create-projects": {
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Create projects",
+        "operationId": "createProjects",
+        "parameters": [
+          {
+            "name": "farmId",
+            "in": "path",
+            "description": "ID of the farm the projects is created on",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "create the title of the project",
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "create the description of your project",
+                    "type": "string"
+                  },
+                  "imageUrl": {
+                    "description": "image of your project",
+                    "type": "string"
+                  },
+                  "targetCost": {
+                    "description": "The target amount",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "dateStarted": {
+                    "description": "Date you started your project",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "dateEnded": {
+                    "description": "The date your project will end",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "imageUrl",
+                  "targetCost",
+                  "dateStarted",
+                  "dateEnded"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "create the title of the project",
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "create the description of your project",
+                    "type": "string"
+                  },
+                  "imageUrl": {
+                    "description": "image of your project",
+                    "type": "string"
+                  },
+                  "targetCost": {
+                    "description": "The target amount",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "dateStarted": {
+                    "description": "Date you started your project",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "dateEnded": {
+                    "description": "The date your project will end",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "imageUrl",
+                  "targetCost",
+                  "dateStarted",
+                  "dateEnded"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Projects created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Project created successfully",
+                  "internal_code": "200"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const userController = require('../../modules/users/userController');
 const auth = require('../../middleware/auth');
+const fileUpload = require('../../helpers/upload')('public/uploads/');
 
 function userRoutes(
   User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
@@ -25,6 +26,7 @@ function userRoutes(
   } = userController(
     User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
   );
+  const { uploader } = fileUpload;
 
   /**
    * @route POST api/user/register
@@ -38,14 +40,14 @@ function userRoutes(
    * @description create user profile route
    * @access Private
   */
-  router.route('/user/create-profile').post(auth, createProfile);
+  router.route('/user/create-profile').post(auth, uploader.single('image'), createProfile);
 
   /**
    * @route Put api/user/update-profile/:profileId
    * @description updte user profile route
    * @access Private
   */
-  router.route('/user/update-profile/:profileId').put(auth, updateProfile);
+  router.route('/user/update-profile/:profileId').put(auth, uploader.single('image'), updateProfile);
 
   /**
    * @route Put api/user/profile

@@ -8,7 +8,7 @@ module.exports = {
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
       image: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.STRING,
       // allowNull: false,
       },
       bios: {
@@ -18,11 +18,11 @@ module.exports = {
         type: Sequelize.STRING,
       },
       phoneNumber: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       idNumber: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       kraPin: {

@@ -3,12 +3,12 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Profile = sequelize.define('Profile', {
-    image: DataTypes.ARRAY(DataTypes.STRING),
+    image: DataTypes.STRING,
     bios: DataTypes.STRING,
-    phoneNumber: DataTypes.NUMBER,
+    phoneNumber: DataTypes.STRING,
     gender: DataTypes.STRING,
     dateOfBirth: DataTypes.DATE,
-    idNumber: DataTypes.NUMBER,
+    idNumber: DataTypes.STRING,
     kraPin: DataTypes.STRING,
     certificateOfConduct: DataTypes.STRING,
     createdAt: DataTypes.DATE,
@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   // eslint-disable-next-line no-unused-vars
   Profile.associate = (models) => {
-    // Profile.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    Profile.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   };
   return Profile;
 };
