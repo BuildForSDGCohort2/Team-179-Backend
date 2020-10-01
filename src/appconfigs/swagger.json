@@ -1107,38 +1107,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "uniqueItems": true
-                  }
-                },
-                "required": [
-                  "email"
-                ]
-              }
-            },
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "uniqueItems": true
-                  }
-                },
-                "required": [
-                  "email"
-                ]
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Email Verified successfully",
