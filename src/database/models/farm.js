@@ -3,7 +3,7 @@
  */
 module.exports = (sequelize, DataTypes) => {
   const Farm = sequelize.define('Farm', {
-    images: DataTypes.ARRAY(DataTypes.STRING),
+    images: DataTypes.STRING,
     landForm: DataTypes.STRING,
     landTenure: DataTypes.STRING,
     irrigationType: DataTypes.STRING,

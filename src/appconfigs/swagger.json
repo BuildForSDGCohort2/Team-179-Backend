@@ -42,21 +42,22 @@
   ],
   "tags": [
     {
+      "name": "Auth",
+      "description": "API Login and Register routes"
+    },
+    {
       "name": "Users",
       "description": "Users endpoints"
-    },
-    {
-      "name": "Auth",
-      "description": "API auth endpoints"
-    },
-    {
-      "name": "Projects",
-      "description": "Project endpoints"
     },
     {
       "name": "Farm",
       "description": "Farm endpoints"
     },
+    {
+      "name": "Projects",
+      "description": "Project endpoints"
+    },
+
     {
       "name": "Payment",
       "description": "Payment endpoints"
@@ -114,11 +115,8 @@
       "Profile": {
         "type": "object",
         "properties": {
-          "images": {
-            "type": "array",
-            "items": [
-              "string"
-            ]
+          "image": {
+            "type": "string"
           },
           "bios": {
             "type": "string"
@@ -141,6 +139,92 @@
           },
           "certificateOfConduct": {
             "type": "string"
+          }
+        }
+      },
+      "projects": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dateStarted": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateEnded": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "targetCost": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalInvested": {
+            "type": "number",
+            "format": "double"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "isWithdrawable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "farms": {
+        "type": "object",
+        "properties": {
+          "images": {
+            "type": "array",
+            "item": {
+              "type": "string"
+            }
+          },
+          "landForm": {
+            "type": "string"
+          },
+          "landTenure": {
+            "type": "string"
+          },
+          "irrigationType": {
+            "type": "string"
+          },
+          "soilType": {
+            "type": "string"
+          },
+          "soilDepth": {
+            "type": "string"
+          },
+          "landSize": {
+            "type": "string"
+          },
+          "accessibility": {
+            "type": "boolean"
+          },
+          "location": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "county": {
+                "type": "string"
+              },
+              "longitude": {
+                "type": "string"
+              },
+              "latitude": {
+                "type": "string"
+              },
+              "geoLocation": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -425,7 +509,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/User"
+                    "success" : true,
+                    "$ref": "#/components/schemas/User",
+                    "message": "User fetched successfully"
                   }
                 }
               }
@@ -1216,13 +1302,13 @@
         "tags": [
           "Projects"
         ],
-        "summary": "Create projects",
+        "summary": "Create farming project",
         "operationId": "createProjects",
         "parameters": [
           {
             "name": "farmId",
             "in": "path",
-            "description": "ID of the farm the projects is created on",
+            "description": "ID of the farm the projects belong to",
             "required": true,
             "schema": {
               "type": "string"
@@ -1231,7 +1317,50 @@
         ],
         "requestBody": {
           "content": {
-            "application/x-www-form-urlencoded": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "create the title of the project",
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "create the description of your project",
+                    "type": "string"
+                  },
+                  "imageUrl": {
+                    "description": "image of your project",
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "targetCost": {
+                    "description": "The target amount",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "dateStarted": {
+                    "description": "Date you started your project",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "dateEnded": {
+                    "description": "The date your project will end",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "imageUrl",
+                  "targetCost",
+                  "dateStarted",
+                  "dateEnded"
+                ]
+              }
+            },
+            "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
@@ -1246,6 +1375,541 @@
                   "imageUrl": {
                     "description": "image of your project",
                     "type": "string"
+                  },
+                  "targetCost": {
+                    "description": "The target amount",
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "dateStarted": {
+                    "description": "Date you started your project",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "dateEnded": {
+                    "description": "The date your project will end",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "imageUrl",
+                  "targetCost",
+                  "dateStarted",
+                  "dateEnded"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "responses": {
+            "200": {
+              "description": "Project created successfully",
+              "content": {
+                "application/json": {
+                "schema": {
+                  "type": "array",
+                    "items": {
+                      "success": true,
+                      "$ref": "#/components/schemas/projects",
+                      "message": "Project created succeessfully"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Missing parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/responses/Error"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/farms/create-farm": {
+      "post": {
+        "tags": [
+          "Farm"
+        ],
+        "summary": "Add a farm",
+        "operationId": "createFarm",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "landTenure": {
+                    "description": "Own land or Rental land",
+                    "type": "string"
+                  },
+                  "landForm": {
+                    "description": "Is you project slopy or flat",
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "images of your farm",
+                    "type": "string",
+                    "format": "binary"
+
+                  },
+                  "irrigationType": {
+                    "description": "Eg. Drip, rainfall or overhead",
+                    "type": "string"
+                  },
+                  "soilType": {
+                    "description": "Eg. Loam or clay",
+                    "type": "string"
+                  },
+                  "soilDepth": {
+                    "description": "How deep is you soil?",
+                    "type": "string"
+                  },
+                  "landSize": {
+                    "description": "The size of your land in hectares or acres eg. 5 acres",
+                    "type": "string"
+                  },
+                  "accessibility": {
+                    "description": "Accessibility to the main road",
+                    "type": "boolean"
+                  },
+                  "county": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  },
+                  "longitude": {
+                    "description": "Location",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "images",
+                  "landForm",
+                  "landTenure",
+                  "irrigationType",
+                  "soilType",
+                  "soilDepth",
+                  "accessibility",
+                  "landSize",
+                  "county",
+                  "longitude",
+                  "latitude"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "landTenure": {
+                    "description": "Own land or Rental land",
+                    "type": "string"
+                  },
+                  "landForm": {
+                    "description": "Is you project slopy or flat",
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "images of your farm",
+                    "type": "string",
+                    "format": "binary"
+
+                  },
+                  "irrigationType": {
+                    "description": "Eg. Drip, rainfall or overhead",
+                    "type": "string"
+                  },
+                  "soilType": {
+                    "description": "Eg. Loam or clay",
+                    "type": "string"
+                  },
+                  "soilDepth": {
+                    "description": "How deep is you soil?",
+                    "type": "string"
+                  },
+                  "landSize": {
+                    "description": "The size of your land in hectares or acres eg. 5 acres",
+                    "type": "string"
+                  },
+                  "accessibility": {
+                    "description": "Accessibility to the main road",
+                    "type": "boolean"
+                  },
+                  "county": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  },
+                  "longitude": {
+                    "description": "Location",
+                    "type": "boolean"
+                  },
+                  "latitude": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "images",
+                  "landForm",
+                  "landTenure",
+                  "irrigationType",
+                  "soilType",
+                  "soilDepth",
+                  "accessibility",
+                  "landSize",
+                  "county",
+                  "longitude",
+                  "latitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Farm created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "success": true,
+                    "$ref": "#/components/schemas/projects",
+                    "message": "Project created succeessfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/projects": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Returns all projects",
+        "operationId": "getAllProjects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limitParam"
+          },
+          {
+            "$ref": "#/components/parameters/skipParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of projects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/projects"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/farms/lists": {
+      "get": {
+        "tags": [
+          "Farm"
+        ],
+        "summary": "Returns all farms",
+        "operationId": "getAllFarms",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limitParam"
+          },
+          {
+            "$ref": "#/components/parameters/skipParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of farms.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/farms"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/project/{projectId}": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Returns a single project",
+        "operationId": "getProject",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "ID of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetched s single project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/projects"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/project/{id}": {
+      "put": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Updates a  single project",
+        "operationId": "updateProject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "create the title of the project",
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "create the description of your project",
+                    "type": "string"
+                  },
+                  "imageUrl": {
+                    "description": "image of your project",
+                    "type": "string",
+                    "format": "binary"
                   },
                   "targetCost": {
                     "description": "The target amount",
@@ -1319,15 +1983,21 @@
         },
         "responses": {
           "200": {
-            "description": "Projects created.",
+            "description": "Updated a single project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/projects"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/responses/Error"
-                },
-                "example": {
-                  "message": "Project created successfully",
-                  "internal_code": "200"
                 }
               }
             }
@@ -1359,17 +2029,78 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/project/{projectid}": {
+      "delete": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Delete a single project",
+        "operationId": "deleteProject",
+        "parameters": [
+          {
+            "name": "projectid",
+            "in": "path",
+            "description": "ID of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete a single project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
           },
-          "500": {
-            "description": "Sever error",
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/responses/Error"
                 },
                 "example": {
-                  "message": "Internal Server Error",
-                  "internal_code": "Server Error"
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
                 }
               }
             }
@@ -1377,13 +2108,370 @@
         },
         "security": [
           {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/farm/{farmId}": {
+      "get": {
+        "tags": [
+          "Farm"
+        ],
+        "summary": "Returns a single farm",
+        "operationId": "getFarm",
+        "parameters": [
+          {
+            "name": "farmId",
+            "in": "path",
+            "description": "ID of the farm",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Fetched a single farm.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/farms"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/farm/{id}": {
+      "put": {
+        "tags": [
+          "Farm"
+        ],
+        "summary": "Updates a single farm",
+        "operationId": "updateFarm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the farm",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "landTenure": {
+                    "description": "Own land or Rental land",
+                    "type": "string"
+                  },
+                  "landForm": {
+                    "description": "Is you project slopy or flat",
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "images of your farm",
+                      "type": "string",
+                      "format": "binary"
+                  },
+                  "irrigationType": {
+                    "description": "Eg. Drip, rainfall or overhead",
+                    "type": "string"
+                  },
+                  "soilType": {
+                    "description": "Eg. Loam or clay",
+                    "type": "string"
+                  },
+                  "soilDepth": {
+                    "description": "How deep is you soil?",
+                    "type": "string"
+                  },
+                  "landSize": {
+                    "description": "The size of your land in hectares or acres eg. 5 acres",
+                    "type": "string"
+                  },
+                  "accessibility": {
+                    "description": "Accessibility to the main road",
+                    "type": "boolean"
+                  },
+                  "county": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  },
+                  "longitude": {
+                    "description": "Location",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "images",
+                  "landForm",
+                  "landTenure",
+                  "irrigationType",
+                  "soilType",
+                  "soilDepth",
+                  "accessibility",
+                  "landSize",
+                  "county",
+                  "longitude",
+                  "latitude"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "landTenure": {
+                    "description": "Own land or Rental land",
+                    "type": "string"
+                  },
+                  "landForm": {
+                    "description": "Is you project slopy or flat",
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "images of your farm",
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "irrigationType": {
+                    "description": "Eg. Drip, rainfall or overhead",
+                    "type": "string"
+                  },
+                  "soilType": {
+                    "description": "Eg. Loam or clay",
+                    "type": "string"
+                  },
+                  "soilDepth": {
+                    "description": "How deep is you soil?",
+                    "type": "string"
+                  },
+                  "landSize": {
+                    "description": "The size of your land in hectares or acres eg. 5 acres",
+                    "type": "string"
+                  },
+                  "accessibility": {
+                    "description": "Accessibility to the main road",
+                    "type": "boolean"
+                  },
+                  "county": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  },
+                  "longitude": {
+                    "description": "Location",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "description": "Where is your land located?",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "images",
+                  "landForm",
+                  "landTenure",
+                  "irrigationType",
+                  "soilType",
+                  "soilDepth",
+                  "accessibility",
+                  "landSize",
+                  "county",
+                  "longitude",
+                  "latitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Updated a single farm.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/farms"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/farm/delete/{farmid}": {
+      "delete": {
+        "tags": [
+          "Farm"
+        ],
+        "summary": "Deletes a single farm",
+        "operationId": "deleteFarm",
+        "parameters": [
+          {
+            "name": "farmid",
+            "in": "path",
+            "description": "ID of the farm",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete a single farm.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
           }
         ]
       }
     }
+
   }
 }

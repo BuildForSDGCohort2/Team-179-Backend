@@ -78,6 +78,36 @@ otherHelper.paginationSendResponse = (
   return res.status(status).json(response);
 };
 
+// pagenate query
+const paginate = (query, { page, pageSize }) => {
+  const offset = page * pageSize;
+  const limit = pageSize;
+
+  return {
+    ...query,
+    offset,
+    limit,
+  };
+};
+// query data for find all
+otherHelper.getquerySendResponse = async (
+  model, page, size, sortQuery, findquery, selectQueryuery, next,
+) => {
+  const datas = {};
+  try {
+    datas.data = await model.findAll(paginate(
+      {
+        where: {}, // conditions
+      },
+      { page, size },
+    ));
+    datas.totaldata = await model.countDocuments(findquery);
+    return datas;
+  } catch (err) {
+    return next(err);
+  }
+};
+
 // Hash user pasword before saving into the database
 otherHelper.hashPassword = (password) => {
   const salt = crypto.randomBytes(16).toString('hex');
