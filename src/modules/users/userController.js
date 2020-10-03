@@ -7,6 +7,7 @@ const {
   forgotSchema,
   updateProfileSchema,
   createProfileSchema,
+  changePasswordSchema,
 } = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
@@ -84,12 +85,11 @@ function UserController(
     if (isEmpty(req.body)) {
       return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the required details', null);
     }
-    createProfileSchema.validateAsync(req.body);
     try {
-      // validates the signup data from the user
-      // await postUserSchema.validateAsync(req.body);
+      // validates the profile data from the user
+      await createProfileSchema.validateAsync(req.body);
+      let { image } = req.body;
       const {
-        images,
         bios,
         phoneNumber,
         gender,
@@ -105,11 +105,16 @@ function UserController(
       if (!user) {
         return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user to associate this profile', null);
       }
+      if (req.file) {
+        debug(req.file);
+        const url = `${req.protocol}://${req.get('host')}`;
+        image = `${url}/public/uploads/${req.file.filename}`;
+      }
       const createdAt = new Date();
       const updatedAt = new Date();
       // creates user
       const results = await Profile.create({
-        images,
+        image,
         bios,
         phoneNumber,
         gender,
@@ -138,13 +143,17 @@ function UserController(
       if (req.body.id) {
         delete req.body.id;
       }
-      updateProfileSchema.validateAsync(req.body);
+      if (typeof req.body.roles === 'string' && !(req.body.roles.trim().length === 0)) {
+        req.body.roles = req.body.roles.split(',');
+      }
+      debug(req.body.roles);
+      await updateProfileSchema.validateAsync(req.body);
+      let { image } = req.body;
       const {
         firstName,
         lastName,
         email,
         roles,
-        images,
         bios,
         phoneNumber,
         gender,
@@ -153,6 +162,11 @@ function UserController(
         kraPin,
         certificateOfConduct,
       } = req.body;
+      if (req.file) {
+        debug(req.file);
+        const url = `${req.protocol}://${req.get('host')}`;
+        image = `${url}/public/uploads/${req.file.filename}`;
+      }
       const updateUser = {
         firstName,
         lastName,
@@ -160,7 +174,7 @@ function UserController(
         roles,
       };
       const updateProfie = {
-        images,
+        image,
         bios,
         phoneNumber,
         gender,
@@ -171,14 +185,13 @@ function UserController(
       };
       const { id } = req.payload.user;
       const { profileId } = req.params;
-      // debug(id);
       const user = await User.findOne({ where: { id } });
       const profile = await Profile.findOne({ where: { id: profileId } });
       if (!user || !profile) {
         return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user or profile to update', null);
       }
       updateUser.updatedAt = new Date();
-      const userResults = await User.update(updateUser, {
+      await User.update(updateUser, {
         where: { id: user.id },
       });
       roles.forEach(async (item) => {
@@ -225,14 +238,10 @@ function UserController(
         }
       });
       updateProfie.updatedAt = new Date();
-      const ProleResults = await Profile.update(updateProfie, {
+      await Profile.update(updateProfie, {
         where: { id: profile.id },
       });
-      const response = [
-        userResults,
-        ProleResults,
-      ];
-      return otherHelper.sendResponse(res, 201, true, response, null, 'User updated successfully', null);
+      return otherHelper.sendResponse(res, 201, true, null, null, 'User updated successfully', null);
     } catch (err) {
       return next(err);
     }
@@ -296,8 +305,11 @@ function UserController(
   };
   // finds user from the database
   const findAllUsers = async (req, res, next) => {
+    const { offset, limit } = req.params;
     try {
       const users = await User.findAll({
+        offset,
+        limit,
         attributes: [
           'id',
           'firstName',
@@ -333,11 +345,11 @@ function UserController(
         where: { email },
       });
       if (!user || !otherHelper.validatePassword(password, user.salt, user.password)) {
-        return otherHelper.sendResponse(res, 400, true, null, null, 'password is invalid', null);
+        return otherHelper.sendResponse(res, 400, true, null, null, 'Email or password is invalid', null);
       }
       const result = otherHelper.toAuthJSON(user);
       const token = otherHelper.generateJWT(result);
-      return otherHelper.sendResponse(res, 201, true, result, null, 'Logged in successfully', token);
+      return otherHelper.sendResponse(res, 201, true, null, null, 'Logged in successfully', token);
     } catch (error) {
       return next(error);
     }
@@ -417,7 +429,7 @@ function UserController(
   // Provide ability to reset forgoten password
   const ForgotPassword = async (req, res, next) => {
     try {
-      forgotSchema.validateAsync(req.body);
+      await forgotSchema.validateAsync(req.body);
       const { email } = req.body;
       // Verify if the user exists
       const user = await User.findOne({ where: { email } });
@@ -443,7 +455,7 @@ function UserController(
       const msg = {
         to: email,
         from: 'team179groupa@gmail.com',
-        subject: 'Email Verification',
+        subject: 'Password Reset',
         html: template,
       };
         // Send email
@@ -457,8 +469,7 @@ function UserController(
   const ResetPassword = async (req, res, next) => {
     try {
       await passwordResetSchema.validateAsync(req.body);
-      const { email, password } = req.body;
-      const { code } = req.query;
+      const { email, password, code } = req.body;
       // verify the user email and reset code
       const user = await User.findOne({
         where: {
@@ -484,21 +495,22 @@ function UserController(
       // generate token for the user.
       const results = otherHelper.toAuthJSON(result);
       const token = otherHelper.generateJWT(results);
-      return otherHelper.sendResponse(res, 200, true, results, null, null, token);
+      return otherHelper.sendResponse(res, 200, true, null, null, 'Password reset successfull', token);
     } catch (err) {
       return next(err);
     }
   };
   const changePassword = async (req, res, next) => {
     try {
-      // debug(req.payload);
+      debug(req.body);
+      await changePasswordSchema.validateAsync(req.body);
       const { id } = req.payload.user;
-      const { oldPassword, newPassword } = req.body;
+      const { oldPassword, password } = req.body;
       const user = await User.findOne({
         where: { id },
       });
       if (otherHelper.validatePassword(oldPassword, user.salt, user.password)) {
-        const { salt, hashedPassword } = otherHelper.hashPassword(newPassword);
+        const { salt, hashedPassword } = otherHelper.hashPassword(password);
         const results = await User.update({
           salt,
           password: hashedPassword,
@@ -516,8 +528,6 @@ function UserController(
   const deleteUser = async (req, res, next) => {
     try {
       const { id } = req.payload.user;
-      const roles = await User.getRoles();
-      User.removeRoles(roles);
       await User.destroy({
         where: { id },
       });

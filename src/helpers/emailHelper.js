@@ -66,7 +66,7 @@ sendMail.signUpTemplate = (name, code) => {
       name: `${name}`,
       intro: 'Welcome to Agri-Vesty! We\'re very excited to have you on board.',
       action: {
-        instructions: 'To get started with Agri-Vesty, please click here:',
+        instructions: `To get started with Agri-Vesty, please click the link bellow or enter this code: ${code}`,
         button: {
           color: '#22BC66',
           text: 'Confirm your account',

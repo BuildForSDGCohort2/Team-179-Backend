@@ -20,6 +20,8 @@ function projectController(Project, User, Farm, Location, ProjectComments, Proje
         description,
         imageUrl,
         targetCost,
+        dateStarted,
+        dateEnded,
       } = req.body;
       // Find request on the database
       const { id } = req.payload.user;
@@ -37,8 +39,8 @@ function projectController(Project, User, Farm, Location, ProjectComments, Proje
       const fResults = await Project.create({
         title,
         description,
-        dateStarted: new Date(),
-        dateEnded: new Date(),
+        dateStarted,
+        dateEnded,
         imageUrl,
         active: false,
         targetCost,

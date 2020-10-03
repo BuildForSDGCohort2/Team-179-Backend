@@ -17,7 +17,7 @@ function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs)
    * @description create farm route
    * @access Private
   */
-  router.route('/projects/:farmId/create-projects').post(auth, createProject);
+  router.route('/:farmId/projects/create-projects').post(auth, createProject);
 
   /**
   * @route Put api/user/farm/:farmId
