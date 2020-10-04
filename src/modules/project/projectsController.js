@@ -1,11 +1,13 @@
-const debug = require('debug')('app:ProjectController');
+// const debug = require('debug')('app:ProjectController');
 // const {
 //   projectSchema,
 // } = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 
-function projectController(Project, User, Farm, Location, ProjectComments, ProjectFavs) {
+function projectController(
+  Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments,
+) {
   const createProject = async (req, res, next) => {
     // checks if the user submits an empty request
     // debug(req.body);
@@ -24,7 +26,7 @@ function projectController(Project, User, Farm, Location, ProjectComments, Proje
         dateEnded,
       } = req.body;
       if (req.file) {
-        debug(req.file);
+        // debug(req.file);
         const url = `${req.protocol}://${req.get('host')}`;
         imageUrl = `${url}/public/uploads/${req.file.filename}`;
       }
@@ -32,7 +34,7 @@ function projectController(Project, User, Farm, Location, ProjectComments, Proje
       const { id } = req.payload.user;
       const dbUser = await User.findOne({ where: { id } });
       const { farmId } = req.params;
-      debug(farmId);
+      // debug(farmId);
       const farm = await Farm.findOne({ where: { id: farmId } });
 
       if (!dbUser || !farm) {
@@ -83,6 +85,16 @@ function projectController(Project, User, Farm, Location, ProjectComments, Proje
               {
                 model: Location,
                 as: 'location',
+              }],
+          },
+          {
+            model: ProjectInvestments,
+            as: 'investors',
+            include: [
+              {
+                model: User,
+                as: 'user',
+                attributes: ['email', 'displayName'],
               }],
           },
           {

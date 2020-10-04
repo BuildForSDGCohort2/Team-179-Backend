@@ -8,17 +8,26 @@
 ## Tech Stack
 
 -   NodeJS
+
 -   Express
+
 -   PostgreSQL Database
+
 -   ReactJs
+
 -   Javascript
 **General functionality:**
 
 -   [x] Authenticate users (Login & Logout)
+
 -   [x] Create, Read, Update and Delete users (sign up, settings/updating & deleting profile )
+
 -   [x] Create, Read, Update and Delete farm and location.
+
 -   [x] Create, Update and Delete farming projects, comments, favourites.
+
 -   [x] GET and display paginated lists of crowdfunding farming project (individual & other requests)
+
 -   [x] Users can favorite and comment on clowdfunding farming project.
 
 ## Kindly Read the instruction bellow
@@ -44,8 +53,8 @@
 
 ## Documentation Translation
 Find the api documentation on:
--   [x] https://agri-vesty.herokuapp.com/api-docs - Remote
+-   [x] [https://agri-vesty.herokuapp.com/api-docs] - Remote
 
--   [x] http://localhost:4000/api-docs. - Local
+-   [x] [http://localhost:4000/api-docs] - Local
 
 <br />

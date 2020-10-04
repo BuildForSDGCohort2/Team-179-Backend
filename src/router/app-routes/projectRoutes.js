@@ -3,7 +3,9 @@ const projectController = require('../../modules/project/projectsController');
 const auth = require('../../middleware/auth');
 const fileUpload = require('../../helpers/upload')('public/uploads/');
 
-function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs) {
+function farmRoutes(
+  Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments,
+) {
   const router = express.Router();
   const {
     createProject,
@@ -11,7 +13,9 @@ function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs)
     findAllProjects,
     deleteProject,
     updateProject,
-  } = projectController(Project, User, Farm, Location, ProjectComments, ProjectFavs);
+  } = projectController(
+    Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments,
+  );
   const { uploader } = fileUpload;
 
   /**

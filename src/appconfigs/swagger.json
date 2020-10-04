@@ -2471,7 +2471,312 @@
           }
         ]
       }
+    },
+    "/{projectId}/payments/b2c/requestPayment": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Farmer Automatic Withdraw",
+        "operationId": "withdrawFarmerMoney",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "ID of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "description": "Enter Phone number you wish yor to be sent to",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "description": "Enter Amount you wish to withdraw",
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "phone",
+                  "amount"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "description": "Enter Phone number you wish your money to be sent to",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "description": "Enter Amount you wish to withdraw",
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "phone",
+                  "amount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Withrawn successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "success": true,
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "phone": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "message": "Withdrawn succeessfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/{projectId}/payments/c2b/simulate": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Invest Automatic through Mpesa",
+        "operationId": "investMoney",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "description": "ID of the project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "description": "Enter Phone number you wish to deposit with",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "description": "Enter Amount you wish to invest",
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "phone",
+                  "amount"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "description": "Enter Phone number you wish to deposit with",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "description": "Enter Amount you wish to invest",
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "phone",
+                  "amount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Deposited successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "success": true,
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "phone": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "message": "Deposited succeessfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/payments/c2b/register": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Register C2B URLS",
+        "operationId": "registerUrls",
+        "responses": {
+          "200": {
+            "description": "Registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "success": true,
+                    "message": "Registered succeessfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sever error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Internal Server Error",
+                  "internal_code": "Server Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
     }
-
   }
 }

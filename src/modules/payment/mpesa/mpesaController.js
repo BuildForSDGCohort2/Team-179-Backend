@@ -26,10 +26,16 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInv
       Authorization: `Basic ${Buffer.from(`${config.mpesaKey
       }:${config.mpesaSecret}`).toString('base64')}`,
     };
+    debug(config.mpesaKey);
     const data = null;
     try {
       const response = await apiCallHelper(url, headers, data, method);
-      // debug({ response });
+      // debug({ response.data });
+      if (!response.data.access_token) {
+        return otherHelper.sendResponse(
+          res, 500, true, response, null, 'Unable to access token', null,
+        );
+      }
       req.accessToken = response.data;
       return next();
     } catch (error) {
@@ -67,7 +73,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInv
   const c2bvalidateURL = (req, res, next) => {
     try {
       const { body } = req;
-      // debug(req.body);
+      debug(req.body);
       const data = {
         TransactionType: body.TransactionType ? body.TransactionType : null,
         TransID: body.TransID ? body.TransID : null,
@@ -98,7 +104,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInv
   const c2bconfirmURL = async (req, res, next) => {
     try {
       const { body } = req;
-      // debug(req.body);
+      debug(req.body);
       let transactData;
       await c2bSimulateDataCache.forEach((elem) => {
         // debug(elem);
@@ -288,9 +294,12 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInv
       await mpesaValidationSchema.validateAsync({ amount, phone });
       // debug(id, projectId);
       const project = await Project.findOne({ where: { id: projectId } });
-      // debug(project);
-      if (!project && !(project.totalInvested <= parseFloat(amount))) {
-        return otherHelper.sendResponse(res, 200, true, null, null, 'Your transaction amount exceeds the prject amount', null);
+      // debug(project.totalInvested <= parseFloat(amount));
+      if (!project) {
+        return otherHelper.sendResponse(res, 400, true, null, null, 'No project to associate this transaction', null);
+      }
+      if (parseFloat(amount) >= project.totalInvested) {
+        return otherHelper.sendResponse(res, 400, true, null, null, 'Your transaction amount exceeds the project amount', null);
       }
       const body = {
         InitiatorName: config.initiator,
