@@ -2,7 +2,6 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b6c54d9481f4dbb86b5cf0b5ec7cdcf)](https://app.codacy.com/gh/BuildForSDGCohort2/Team-179-Backend?utm_source=github.com&utm_medium=referral&utm_content=BuildForSDGCohort2/Team-179-Backend&utm_campaign=Badge_Grade_Settings) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 > Agrivesty is an Crowdfunding System that help farmers to raise farming capital from available investor. In this platform, a user can either create a crowdfunding farming project or invest money towards their favorite farming projects. The platform also provides social features where users can leave their comments and discuss projects and like a project.
 
 ## Tech Stack
@@ -52,9 +51,6 @@
 ![Screenshot](database_flow.jpg)
 
 ## Documentation Translation
-Find the api documentation on:
--   [x] [https://agri-vesty.herokuapp.com/api-docs] - Remote
-
--   [x] [http://localhost:4000/api-docs] - Local
+Find the api documentation on: https://agri-vesty.herokuapp.com/api-docs or http://localhost:4000/api-docs
 
 <br />
