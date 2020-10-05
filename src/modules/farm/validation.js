@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 
 const farmSchema = Joi.object({
-  images: Joi.array().items(Joi.string()).required(),
+  images: Joi.string(),
   landForm: Joi.string().required(),
   landTenure: Joi.string().required(),
   irrigationType: Joi.string().required(),

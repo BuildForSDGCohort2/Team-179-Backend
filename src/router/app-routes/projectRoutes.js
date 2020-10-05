@@ -1,8 +1,11 @@
 const express = require('express');
 const projectController = require('../../modules/project/projectsController');
 const auth = require('../../middleware/auth');
+const fileUpload = require('../../helpers/upload')('public/uploads/');
 
-function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs) {
+function farmRoutes(
+  Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments,
+) {
   const router = express.Router();
   const {
     createProject,
@@ -10,41 +13,44 @@ function farmRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs)
     findAllProjects,
     deleteProject,
     updateProject,
-  } = projectController(Project, User, Farm, Location, ProjectComments, ProjectFavs);
+  } = projectController(
+    Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments,
+  );
+  const { uploader } = fileUpload;
 
   /**
    * @route POST api/farm/create-farm
    * @description create farm route
    * @access Private
   */
-  router.route('/:farmId/projects/create-projects').post(auth, createProject);
+  router.route('/:farmId/projects/create-projects').post(auth, uploader.single('imageUrl'), createProject);
 
   /**
   * @route Put api/user/farm/:farmId
   * @description updte farm detail route
   * @access Private
  */
-  router.route('/projects/:projectId').put(auth, updateProject);
+  router.route('/project/:projectId').put(auth, uploader.single('imageUrl'), updateProject);
 
   /**
   * @route Put api/farms/:farmId
   * @description get farm details
   * @access Private
  */
-  router.route('/projects/:projectId').get(auth, findProject);
+  router.route('/project/:projectId').get(auth, findProject);
 
   /**
   * @route Put api/farms/list
   * @description get farm list
   * @access Private
  */
-  router.route('/projects/list').get(auth, findAllProjects);
+  router.route('/projects').get(auth, findAllProjects);
   /**
    * @route Put /farm/delete
    * @description Delete farm
    * @access Private
   */
-  router.route('/projects/:projectId').delete(auth, deleteProject);
+  router.route('/project/:projectId').delete(auth, deleteProject);
   return router;
 }
 

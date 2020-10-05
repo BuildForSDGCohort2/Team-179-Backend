@@ -43,7 +43,7 @@ function PaymentRoutes(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInves
   * @description get success url
   * @access Private
  */
-  router.route('/payments/:projectId/c2b/simulate').post(auth, accessToken, c2bSimulatePayments);
+  router.route('/:projectId/payments/c2b/simulate').post(auth, accessToken, c2bSimulatePayments);
   /**
     * @route Put api/payments/access-token
     * @description get token
@@ -67,7 +67,7 @@ function PaymentRoutes(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInves
   * @description withdraw from our lipa na mpesa
   * @access Private
  */
-  router.route('/payments/:projectId/b2c/requestPayment').post(auth, accessToken, b2cPaymentRequest);
+  router.route('/:projectId/payments/b2c/requestPayment').post(auth, accessToken, b2cPaymentRequest);
   /**
   * @route Put api/payments/b2c/timeout
   * @description post timeout data from B2C Mpesa API

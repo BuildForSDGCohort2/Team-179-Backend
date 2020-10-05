@@ -25,6 +25,6 @@ router.get('/health-check', (req, res) => res.send('This API is Okay'));
 router.use('/', userRoutes(User, Role, Profile, RolesAuth, Farm, Location, Project, ProjectFavs, ProjectComments));
 router.use('/', farmRoutes(Farm, Location, User));
 router.use('/', paymentsRoutes(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInvestments));
-router.use('/', projectsRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs));
+router.use('/', projectsRoutes(Project, User, Farm, Location, ProjectComments, ProjectFavs, ProjectInvestments));
 
 module.exports = router;

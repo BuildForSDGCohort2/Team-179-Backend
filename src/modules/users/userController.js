@@ -308,8 +308,8 @@ function UserController(
     const { offset, limit } = req.params;
     try {
       const users = await User.findAll({
-        offset,
         limit,
+        offset,
         attributes: [
           'id',
           'firstName',

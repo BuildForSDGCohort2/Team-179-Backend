@@ -13,7 +13,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       images: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.STRING,
       },
       landForm: {
         type: Sequelize.STRING,

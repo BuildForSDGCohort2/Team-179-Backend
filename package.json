@@ -70,6 +70,7 @@
     "sequelize": "^6.3.4",
     "sequelize-cli": "^6.2.0",
     "swagger-ui-express": "^4.1.4",
+    "swagger-ui-themes": "^3.0.1",
     "uuid": "^8.3.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-// const debug = require('debug')('app:UserController');
+const debug = require('debug')('app:FarmController');
 // const { Op } = require('sequelize');
 const farmSchema = require('./validation');
 const otherHelper = require('../../helpers/otherhelpers');
@@ -12,10 +12,16 @@ function farmController(Farm, Location, User) {
       return otherHelper.sendResponse(res, 422, false, null, null, 'please enter all the details', null);
     }
     try {
-      // validates the firms data from the user
-      await farmSchema.validateAsync(req.body);
+      let { images } = req.body;
+      debug(req.file);
+      if (req.file) {
+        debug(req.file);
+        const url = `${req.protocol}://${req.get('host')}`;
+        images = `${url}/public/uploads/${req.file.filename}`;
+      }
+      // validates the farms data from the user
+      // await farmSchema.validateAsync(req.body);
       const {
-        images,
         landForm,
         landTenure,
         irrigationType,
@@ -104,7 +110,14 @@ function farmController(Farm, Location, User) {
   // finds farms from the database
   const findAllFarms = async (req, res, next) => {
     try {
-      const farms = await Farm.findAll({});
+      const farms = await Farm.findAll({
+        include: [
+          {
+            model: Location,
+            as: 'location',
+          },
+        ],
+      });
       if (isEmpty(farms)) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'No farms available to show', null);
       }
@@ -119,23 +132,27 @@ function farmController(Farm, Location, User) {
       delete req.body.id;
     }
     const { farmId } = req.params;
-    // validates the farms data from the user
-    await farmSchema.validateAsync(req.body);
-
-    const {
-      images,
-      landForm,
-      landTenure,
-      irrigationType,
-      soilType,
-      soilDepth,
-      accessibility,
-      landSize,
-      county,
-      longitude,
-      latitude,
-    } = req.body;
     try {
+      let { images } = req.body;
+      if (req.file) {
+        debug(req.file);
+        const url = `${req.protocol}://${req.get('host')}`;
+        images = `${url}/public/uploads/${req.file.filename}`;
+      }
+      // validates the farms data from the user
+      await farmSchema.validateAsync(req.body);
+      const {
+        landForm,
+        landTenure,
+        irrigationType,
+        soilType,
+        soilDepth,
+        accessibility,
+        landSize,
+        county,
+        longitude,
+        latitude,
+      } = req.body;
       const updatedAt = new Date();
       const geoLocation = { type: 'Point', coordinates: [latitude, longitude] };
       // Update location
