@@ -21,6 +21,8 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
       },
+      roles: { type: Sequelize.ARRAY(Sequelize.STRING) },
+      accessToken: { type: Sequelize.ARRAY(Sequelize.STRING) },
       password: {
         type: Sequelize.TEXT,
       },

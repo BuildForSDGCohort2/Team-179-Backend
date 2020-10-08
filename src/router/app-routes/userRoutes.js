@@ -3,14 +3,16 @@ const passport = require('passport');
 const userController = require('../../modules/users/userController');
 const auth = require('../../middleware/auth');
 const fileUpload = require('../../helpers/upload')('public/uploads/');
+const rolesMiddleware = require('../../middleware/rolesMiddleware');
 
 function userRoutes(
-  User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+  User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize,
 ) {
   const router = express.Router();
   const {
     createUser,
-    findOneUser,
+    findUserLoggedIn,
+    findUserProfile,
     createProfile,
     updateProfile,
     findAllUsers,
@@ -24,8 +26,9 @@ function userRoutes(
     changePassword,
     deleteUser,
   } = userController(
-    User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+    User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize,
   );
+  const { isAdmin } = rolesMiddleware(User);
   const { uploader } = fileUpload;
 
   /**
@@ -51,17 +54,22 @@ function userRoutes(
 
   /**
    * @route Put api/user/profile
-   * @description get user details
+   * @description get user profile
    * @access Private
   */
-  router.route('/user/profile').get(auth, findOneUser);
-
+  router.route('/user/profile').get(auth, findUserProfile);
+  /**
+   * @route Put api/user/profile
+   * @description get logged in
+   * @access Private
+  */
+  router.route('/user/me').get(auth, findUserLoggedIn);
   /**
    * @route Put api/user/list
    * @description get users list
    * @access Private
   */
-  router.route('/users/list').get(auth, findAllUsers);
+  router.route('/users/list').get(auth, isAdmin, findAllUsers);
 
   /**
    * @route Put /auth/google

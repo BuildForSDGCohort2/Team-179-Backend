@@ -117,9 +117,18 @@ function projectController(
   };
   // finds projects from the database
   const findAllProjects = async (req, res, next) => {
-    const { offset, limit } = req.params;
+    let { offset, limit } = req.query;
     try {
-      const projects = await Project.findAll({ offset, limit });
+      limit = Math.abs(parseInt(limit, 10));
+      offset = Math.abs(parseInt(offset, 10)) * limit;
+      const projects = await Project.findAndCountAll({
+        where: {},
+        limit,
+        offset,
+        order: [
+          ['createdAt', 'DESC'],
+        ],
+      });
       if (isEmpty(projects)) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'No projects available to show', null);
       }

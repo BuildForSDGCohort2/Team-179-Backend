@@ -4,10 +4,8 @@ const passport = require('passport');
 const config = require('../../../appconfigs/config')();
 // const otherHelper = require('../../../helpers/otherhelpers');
 const sendMail = require('../../../helpers/emailHelper');
-const roleController = require('../../users/rolesController');
 
-module.exports = (User, Role) => {
-  const { createRole } = roleController(Role);
+module.exports = (User) => {
   const strategyOptions = {
     clientID: config.facebookID,
     clientSecret: config.facebookSecret,
@@ -33,6 +31,7 @@ module.exports = (User, Role) => {
         displayName: profile.displayName,
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
+        roles,
         email: profile.emails[0].value,
         provider: profile.provider,
         providerId: profile.id,
@@ -53,7 +52,6 @@ module.exports = (User, Role) => {
       };
       // Send email
       sendMail.send(msg);
-      createRole(roles, results);
       return done(null, results);
     } catch (err) {
       // debug('err:', err);

@@ -78,7 +78,6 @@ require('../modules/auth/passport')(app);
 const swaggerOptions = {
   explorer: true,
   customSiteTitle: 'Agrivesty',
-  customCssUrl: '/theme-flattop.css',
 };
 // API routes
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, swaggerOptions));

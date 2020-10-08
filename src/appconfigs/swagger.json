@@ -568,12 +568,80 @@
         "tags": [
           "Users"
         ],
-        "description": "Returns pets based on ID",
+        "description": "Returns user based on ID",
         "summary": "Find user by payload ID",
         "operationId": "getUserById",
         "responses": {
           "200": {
-            "description": "A list of users.",
+            "description": "Get user profile details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Method not allowed",
+                  "internal_code": "405"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Error"
+                },
+                "example": {
+                  "message": "Not Found",
+                  "internal_code": "404"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Returns user based on ID",
+        "summary": "Find user by payload ID",
+        "operationId": "getCurrentUserById",
+        "responses": {
+          "200": {
+            "description": "Get current logged in user",
             "content": {
               "application/json": {
                 "schema": {
@@ -651,6 +719,9 @@
                   "bios": {
                     "type": "string"
                   },
+                  "roles": {
+                    "type": "string"
+                  },
                   "phoneNumber": {
                     "type": "string"
                   },
@@ -665,9 +736,6 @@
                     "type": "string"
                   },
                   "kraPin": {
-                    "type": "string"
-                  },
-                  "certificateOfConduct": {
                     "type": "string"
                   }
                 },
@@ -690,6 +758,9 @@
                   "bios": {
                     "type": "string"
                   },
+                  "roles": {
+                    "type": "string"
+                  },
                   "phoneNumber": {
                     "type": "string"
                   },
@@ -705,9 +776,6 @@
                     "type": "string"
                   },
                   "kraPin": {
-                    "type": "string"
-                  },
-                  "certificateOfConduct": {
                     "type": "string"
                   }
                 },
@@ -798,10 +866,7 @@
                     "format": "binary"
                   },
                   "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
+                    "type": "string"
                   },
                   "bios": {
                     "type": "string"
@@ -820,9 +885,6 @@
                     "type": "string"
                   },
                   "kraPin": {
-                    "type": "string"
-                  },
-                  "certificateOfConduct": {
                     "type": "string"
                   }
                 },
@@ -858,10 +920,7 @@
                     "format": "binary"
                   },
                   "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
+                    "type": "string"
                   },
                   "bios": {
                     "type": "string"
@@ -880,9 +939,6 @@
                     "type": "string"
                   },
                   "kraPin": {
-                    "type": "string"
-                  },
-                  "certificateOfConduct": {
                     "type": "string"
                   }
                 },

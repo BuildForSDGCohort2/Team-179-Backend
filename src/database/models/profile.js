@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     dateOfBirth: DataTypes.DATE,
     idNumber: DataTypes.STRING,
     kraPin: DataTypes.STRING,
-    certificateOfConduct: DataTypes.STRING,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   }, {});

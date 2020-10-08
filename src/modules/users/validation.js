@@ -22,7 +22,7 @@ const updateProfileSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
-  roles: Joi.array().items(Joi.string()),
+  roles: Joi.string(),
   image: Joi.string(),
   bios: Joi.string(),
   phoneNumber: Joi.string().required(),
@@ -30,17 +30,16 @@ const updateProfileSchema = Joi.object({
   dateOfBirth: Joi.date().required(),
   idNumber: Joi.string().required(),
   kraPin: Joi.string().required(),
-  certificateOfConduct: Joi.string(),
 });
 const createProfileSchema = Joi.object({
   image: Joi.string(),
   bios: Joi.string(),
+  roles: Joi.string(),
   phoneNumber: Joi.string().min(3).max(15).required(),
   gender: Joi.string().required(),
   dateOfBirth: Joi.date().required(),
   idNumber: Joi.string().min(3).max(15).required(),
   kraPin: Joi.string().min(3).required(),
-  certificateOfConduct: Joi.string().required(),
 });
 const postRolechema = Joi.object({
   role: Joi.string()

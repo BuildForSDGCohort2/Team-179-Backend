@@ -15,7 +15,8 @@
 -   ReactJs
 
 -   Javascript
-**General functionality:**
+
+## General functionality
 
 -   [x] Authenticate users (Login & Logout)
 
@@ -30,6 +31,7 @@
 -   [x] Users can favorite and comment on clowdfunding farming project.
 
 ## Kindly Read the instruction bellow
+
 **SETUP**
 -   [x] Click on Fork at the top right corner
 -   [x] Clone your forked repository to our local machine
@@ -43,8 +45,10 @@
 -   [x] Copy env-example to .env and fill all the fields with your credentials
 -   [x] npm run dev
 -   [x] Go to http://localhost:4000
+-   [x] Documentation is on http://localhost:4000/api-docs
 
 ## Data Flow Diagram
+
 ![Screenshot](Information_Flow.jpg)
 
 ## Database Design Schema Diagram
@@ -52,7 +56,6 @@
 
 ## Documentation Translation
 Find the api documentation on: 
--   `[https://agri-vesty.herokuapp.com/api-docs]`
--   http://localhost:4000/api-docs
+-   [Remote Documentation](https://agri-vesty.herokuapp.com/api-docs)
 
 <br />

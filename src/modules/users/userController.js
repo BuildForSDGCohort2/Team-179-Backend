@@ -12,12 +12,10 @@ const {
 const otherHelper = require('../../helpers/otherhelpers');
 const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
-const roleController = require('./rolesController');
 
 function UserController(
-  User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+  User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize,
 ) {
-  const { createRole } = roleController(Role);
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
     // debug(req.body);
@@ -51,6 +49,7 @@ function UserController(
         lastName,
         email,
         password,
+        roles,
         displayName: `${firstName} ${lastName}`,
         provider: 'Agri-Vesty',
         providerId: `${otherHelper.generateRandomHexString(20)}`,
@@ -71,9 +70,9 @@ function UserController(
       };
       // Send email
       sendMail.send(msg);
-      await createRole(roles, results);
       // generate authentication token
-      const token = otherHelper.generateJWT(otherHelper.toAuthJSON(results));
+      const result = otherHelper.toAuthJSON(results);
+      const token = otherHelper.generateJWT(result);
       return otherHelper.sendResponse(res, 201, true, null, null, 'New user registered successfully', token);
     } catch (err) {
       return next(err);
@@ -93,10 +92,10 @@ function UserController(
         bios,
         phoneNumber,
         gender,
+        roles,
         dateOfBirth,
         idNumber,
         kraPin,
-        certificateOfConduct,
       } = req.body;
       // Checks find user on the database
       const { id } = req.payload.user;
@@ -106,12 +105,14 @@ function UserController(
         return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user to associate this profile', null);
       }
       if (req.file) {
-        debug(req.file);
+        // debug(req.file);
         const url = `${req.protocol}://${req.get('host')}`;
         image = `${url}/public/uploads/${req.file.filename}`;
       }
       const createdAt = new Date();
       const updatedAt = new Date();
+      // roles = user.roles.push(roles);
+      // debug(user.roles);
       // creates user
       const results = await Profile.create({
         image,
@@ -121,9 +122,15 @@ function UserController(
         dateOfBirth,
         idNumber,
         kraPin,
-        certificateOfConduct,
         createdAt,
         updatedAt,
+      });
+      const updateUser = {
+        roles: (user.roles.indexOf('admin') > -1) ? user.roles : Sequelize.fn('array_append', Sequelize.col('roles'), roles),
+      };
+      updateUser.updatedAt = new Date();
+      await User.update(updateUser, {
+        where: { id },
       });
       await results.setUser(user);
       return otherHelper.sendResponse(res, 201, true, results, null, 'New user registered successfully', null);
@@ -143,35 +150,42 @@ function UserController(
       if (req.body.id) {
         delete req.body.id;
       }
-      if (typeof req.body.roles === 'string' && !(req.body.roles.trim().length === 0)) {
-        req.body.roles = req.body.roles.split(',');
-      }
-      debug(req.body.roles);
+      // if (typeof req.body.roles === 'string' && !(req.body.roles.trim().length === 0)) {
+      //   req.body.roles = req.body.roles.split(',');
+      // }
+      // debug(req.body.roles);
       await updateProfileSchema.validateAsync(req.body);
       let { image } = req.body;
       const {
         firstName,
         lastName,
         email,
-        roles,
         bios,
         phoneNumber,
         gender,
+        roles,
         dateOfBirth,
         idNumber,
         kraPin,
-        certificateOfConduct,
       } = req.body;
       if (req.file) {
-        debug(req.file);
+        // debug(req.file);
         const url = `${req.protocol}://${req.get('host')}`;
         image = `${url}/public/uploads/${req.file.filename}`;
+      }
+      const { id } = req.payload.user;
+      const { profileId } = req.params;
+      const user = await User.findOne({ where: { id } });
+      const profile = await Profile.findOne({ where: { id: profileId } });
+      if (!user || !profile) {
+        return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user or profile to update', null);
       }
       const updateUser = {
         firstName,
         lastName,
         email,
-        roles,
+        roles: (user.roles.indexOf('admin') > -1) ? user.roles : Sequelize.fn('array_append', Sequelize.col('roles'), roles),
+        updatedAt: new Date(),
       };
       const updateProfie = {
         image,
@@ -181,63 +195,11 @@ function UserController(
         dateOfBirth,
         idNumber,
         kraPin,
-        certificateOfConduct,
+        updatedAt: new Date(),
       };
-      const { id } = req.payload.user;
-      const { profileId } = req.params;
-      const user = await User.findOne({ where: { id } });
-      const profile = await Profile.findOne({ where: { id: profileId } });
-      if (!user || !profile) {
-        return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry there is no user or profile to update', null);
-      }
-      updateUser.updatedAt = new Date();
       await User.update(updateUser, {
         where: { id: user.id },
       });
-      roles.forEach(async (item) => {
-        try {
-          // Search if the role id it exists. If it doesn't, respond with status 400.
-          const role = await Role.findOne({ where: { role: item } });
-          if (!role) {
-            debug('Role does not exist');
-          }
-          const roleAuthFind = await RoleAuth.findOne({
-            where: {
-              [Op.and]: [
-                { userId: user.id },
-                { roleId: role.id },
-              ],
-            },
-          });
-          if (!roleAuthFind) {
-            const data = {
-              userId: user.id,
-              roleId: role.id,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            };
-            const userRoleAuthCreate = await RoleAuth.create(data);
-            return userRoleAuthCreate;
-          }
-          const dataUp = {
-            userId: user.id,
-            roleId: role.id,
-            updatedAt: new Date(),
-          };
-          const userRoleAuthUpdate = await RoleAuth.update(dataUp, {
-            where: {
-              [Op.and]: [
-                { userId: user.id },
-                { roleId: role.id },
-              ],
-            },
-          });
-          return userRoleAuthUpdate;
-        } catch (err) {
-          return next(err);
-        }
-      });
-      updateProfie.updatedAt = new Date();
       await Profile.update(updateProfie, {
         where: { id: profile.id },
       });
@@ -247,10 +209,10 @@ function UserController(
     }
   };
   // finds user from the database
-  const findOneUser = async (req, res, next) => {
+  const findUserProfile = async (req, res, next) => {
     try {
       const { id } = req.payload.user;
-      // debug(req.payload);
+      // debug(req.payload.user);
       // const { id } = req.params;
       const user = await User.findOne({
         where: { id },
@@ -259,15 +221,12 @@ function UserController(
           'firstName',
           'lastName',
           'email',
+          'roles',
           'emailVerified',
           'createdAt',
           'updatedAt',
         ],
         include: [
-          {
-            model: Role,
-            as: 'roles',
-          },
           {
             model: Profile,
             as: 'userProfile',
@@ -296,6 +255,33 @@ function UserController(
         ],
       });
       if (!user) {
+        return otherHelper.sendResponse(res, 400, false, null, null, 'User profile not found', null);
+      }
+      return otherHelper.sendResponse(res, 201, true, user, null, 'User Profile fetched successfully', null);
+    } catch (err) {
+      return next(err);
+    }
+  };
+  // find current user
+  const findUserLoggedIn = async (req, res, next) => {
+    try {
+      const { id } = req.payload.user;
+      // debug(req.payload.user);
+      // const { id } = req.params;
+      const user = await User.findOne({
+        where: { id },
+        attributes: [
+          'id',
+          'firstName',
+          'lastName',
+          'email',
+          'roles',
+          'emailVerified',
+          'createdAt',
+          'updatedAt',
+        ],
+      });
+      if (!user) {
         return otherHelper.sendResponse(res, 400, false, null, null, 'User not found', null);
       }
       return otherHelper.sendResponse(res, 201, true, user, null, 'User fetched successfully', null);
@@ -305,11 +291,18 @@ function UserController(
   };
   // finds user from the database
   const findAllUsers = async (req, res, next) => {
-    const { offset, limit } = req.params;
+    let { offset, limit } = req.query;
     try {
-      const users = await User.findAll({
+      limit = Math.abs(parseInt(limit, 10));
+      offset = Math.abs(parseInt(offset, 10)) * limit;
+      // debug(limit, offset);
+      const users = await User.findAndCountAll({
+        where: {},
         limit,
         offset,
+        order: [
+          ['createdAt', 'DESC'],
+        ],
         attributes: [
           'id',
           'firstName',
@@ -354,7 +347,6 @@ function UserController(
       return next(error);
     }
   };
-
   const googleLogin = (req, res) => {
     const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
     return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
@@ -451,7 +443,7 @@ function UserController(
         where: { id: user.id },
       });
       // email object to be passed to sendgrind
-      const template = sendMail.signUpTemplate(user.firstName, passwordResetCode);
+      const template = sendMail.resetPassword(user.firstName, passwordResetCode);
       const msg = {
         to: email,
         from: 'team179groupa@gmail.com',
@@ -539,7 +531,8 @@ function UserController(
   const controller = {
     createUser,
     updateProfile,
-    findOneUser,
+    findUserLoggedIn,
+    findUserProfile,
     createProfile,
     findAllUsers,
     signIn,

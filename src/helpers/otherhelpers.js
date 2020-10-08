@@ -78,36 +78,6 @@ otherHelper.paginationSendResponse = (
   return res.status(status).json(response);
 };
 
-// pagenate query
-const paginate = (query, { page, pageSize }) => {
-  const offset = page * pageSize;
-  const limit = pageSize;
-
-  return {
-    ...query,
-    offset,
-    limit,
-  };
-};
-// query data for find all
-otherHelper.getquerySendResponse = async (
-  model, page, size, sortQuery, findquery, selectQueryuery, next,
-) => {
-  const datas = {};
-  try {
-    datas.data = await model.findAll(paginate(
-      {
-        where: {}, // conditions
-      },
-      { page, size },
-    ));
-    datas.totaldata = await model.countDocuments(findquery);
-    return datas;
-  } catch (err) {
-    return next(err);
-  }
-};
-
 // Hash user pasword before saving into the database
 otherHelper.hashPassword = (password) => {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -133,16 +103,42 @@ otherHelper.generateJWT = (user) => {
   }, jwtSecret);
 };
 
+// Generate Refresh token
+
+otherHelper.generateRefreshToken = async (RefreshToken, user) => {
+  try {
+    // create a refresh token that expires in 7 days
+    const token = await RefreshToken.create({
+      token: otherHelper.generateRandomHexString(82),
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      createdAt: Date.now(),
+    });
+    token.setUser(user);
+    return token;
+  } catch (error) {
+    return error;
+  }
+};
+// create http only cookie with refresh token that expires in 7 days
+otherHelper.setTokenCookie = (res, token) => {
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  };
+  res.cookie('refreshToken', token, cookieOptions);
+};
+
 // Filter user response details
 otherHelper.toAuthJSON = (results) => {
   const {
-    id, firstName, lastName, email, createdAt,
+    id, firstName, lastName, email, roles, createdAt,
   } = results;
   const user = {
     id,
     firstName,
     lastName,
     email,
+    roles,
     createdAt,
   };
   return user;
@@ -171,4 +167,5 @@ otherHelper.processPhone = (phone) => {
   }
   return phoneArray.join('');
 };
+
 module.exports = otherHelper;
