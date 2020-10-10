@@ -325,7 +325,7 @@ function MpesaController(MpesaB2C, MpesaC2B, MpesaLNM, User, Project, ProjectInv
       b2cData.projectId = projectId;
       b2cData.userId = id;
       return otherHelper.sendResponse(
-        res, 200, true, responseObject, null, responseObject.ResponseDescription, null,
+        res, 201, true, responseObject, null, responseObject.ResponseDescription, null,
       );
     } catch (error) {
       return next(error);

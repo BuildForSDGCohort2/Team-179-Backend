@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
-    .then(() => queryInterface.createTable('Users', {
+    .then(() => queryInterface.createTable('RefreshTokens', {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -18,6 +18,9 @@ module.exports = {
       expires: {
         type: Sequelize.DATE,
       },
+      revoked : {
+        type: Sequelize.BOOLEAN,
+      },
       revokedAt: {
         type: Sequelize.DATE,
       },
@@ -33,6 +36,7 @@ module.exports = {
         type: Sequelize.DATE,
       },
     })),
+
   // eslint-disable-next-line no-unused-vars
   down: (queryInterface, Sequelize) => queryInterface.dropTable('RefreshTokens'),
 };

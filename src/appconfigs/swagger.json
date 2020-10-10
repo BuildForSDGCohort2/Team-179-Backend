@@ -228,6 +228,24 @@
           }
         }
       },
+      "RefreshTokens": {
+        "type": "object",
+        "properties": {
+          "refToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revoked": {
+            "type": "boolean"
+          },
+          "replaceToken": {
+            "type": "string"
+          }
+        }
+      },
       "Auth": {
         "type": "object",
         "properties": {
@@ -272,21 +290,6 @@
         "style": "simple"
       }
     },
-    "responses": {
-      "Error": {
-        "description": "General Error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/GeneralError"
-            }
-          }
-        }
-      },
-      "Unauthorized": {
-        "description": "You are not authorized to access this resources."
-      }
-    },
     "securitySchemes":{
       "basic": {
         "type": "http",
@@ -299,6 +302,12 @@
         "scheme": "bearer",
         "in": "header",
         "bearerFormat": "JWT"
+      },
+      "cookieAuth": {
+        "description": "Refresh token",
+        "name": "refreshToken",
+        "type": "apiKey",
+        "in": "cookie"
       }
     }
   },
@@ -366,15 +375,43 @@
             }
           },
           "400": {
-            "description": "Missing parameters",
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Email is missing",
-                  "internal_code": "missing_parameters"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
                 }
               }
             }
@@ -470,20 +507,438 @@
             }
           },
           "400": {
-            "description": "Missing parameters",
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Email is missing",
-                  "internal_code": "missing_parameters"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
                 }
               }
             }
           }
         }
+      }
+    },
+
+    "/user/refresh-tokens": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refreshes user token",
+        "operationId": "refreshUserToken",
+
+        "responses": {
+          "201": {
+            "description": "Refreshes user tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Auth"
+                },
+                "example": {
+                  "message": "Logged in successfuly",
+                  "token": "mnamsnasmanmsnamsnasmasam"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [],
+            "cookieAuth": []
+          }
+        ]
+      }
+    },
+    "/user/refresh-token/list": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Gets users refresh token",
+        "operationId": "getRefreshToken",
+
+        "responses": {
+          "201": {
+            "description": "Get all current logged in user refresh tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokens"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [],
+            "cookieAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/refresh-token/revoke": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Admin revokes user refresh token",
+        "operationId": "aminRevokeRefreshToken",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Refresh Token": {
+                    "description": "User refresh token to be revoked",
+                    "type": "string"
+                  }
+                },
+                "required": ["Refresh Token"]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Refresh Token": {
+                    "description": "User refresh token to be revoked",
+                    "type": "string"
+                  }
+                },
+                "required": ["Refresh Token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Admin revokes user refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "int32"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "204",
+                  "message": "Successful"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/user/refresh-token/revoke": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "User revokes user refresh token",
+        "operationId": "userRevokeRefreshToken",
+        "responses": {
+          "204": {
+            "description": "User revokes user refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "int32"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "code": "204",
+                  "message": "Successful"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [],
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/users/list": {
@@ -517,26 +972,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -546,11 +991,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -585,26 +1058,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -614,11 +1077,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -653,26 +1144,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -682,11 +1163,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -791,7 +1300,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "New profile created successfully",
             "content": {
               "application/json": {
@@ -805,16 +1314,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "No user to associate with that profile",
-                  "internal_code": "missing_parameters"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -958,7 +1509,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Profile updated successfully",
             "content": {
               "application/json": {
@@ -969,12 +1520,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1046,7 +1643,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Changed Password successfully",
             "content": {
               "application/json": {
@@ -1057,12 +1654,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1115,7 +1758,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Email sent to your email",
             "content": {
               "application/json": {
@@ -1126,12 +1769,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1207,7 +1896,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Reset Password successful",
             "content": {
               "application/json": {
@@ -1218,12 +1907,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1261,12 +1996,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1287,7 +2068,7 @@
         "operationId": "resendVerification",
         "summary": "Resend Email Verification",
         "responses": {
-          "200": {
+          "201": {
             "description": "Email Verification Sent Successfully",
             "content": {
               "application/json": {
@@ -1298,12 +2079,58 @@
               }
             }
           },
-          "404": {
-            "description": "Missing parameters",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1324,7 +2151,7 @@
         "operationId": "deleteUser",
         "summary": "Delete User",
         "responses": {
-          "200": {
+          "204": {
             "description": "User deleted successfully",
             "content": {
               "application/json": {
@@ -1335,12 +2162,58 @@
               }
             }
           },
-          "403": {
-            "description": "Forbiden",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1462,7 +2335,7 @@
         },
         "responses": {
           "responses": {
-            "200": {
+            "201": {
               "description": "Project created successfully",
               "content": {
                 "application/json": {
@@ -1477,12 +2350,58 @@
                 }
               }
             },
-            "404": {
-              "description": "Missing parameters",
+            "400": {
+              "description": "Bad request",
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/responses/Error"
+                    "$ref": "#/components/schemas/GeneralError"
+                  },
+                  "example": {
+                    "code": "400",
+                    "message": "Bad request"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GeneralError"
+                  },
+                  "example": {
+                    "code": "400",
+                    "message": "Bad request"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GeneralError"
+                  },
+                  "example": {
+                    "code": "500",
+                    "message": "Internal server error"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/GeneralError"
+                  },
+                  "example": {
+                    "code": "401",
+                    "message": "Unauthorized"
                   }
                 }
               }
@@ -1654,7 +2573,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Farm created successfully",
             "content": {
               "application/json": {
@@ -1669,30 +2588,58 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
           },
           "500": {
-            "description": "Sever error",
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Internal Server Error",
-                  "internal_code": "Server Error"
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1734,26 +2681,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -1763,11 +2700,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1809,26 +2774,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -1838,11 +2793,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -1884,26 +2867,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -1913,11 +2886,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2038,7 +3039,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Updated a single project.",
             "content": {
               "application/json": {
@@ -2048,26 +3049,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -2077,11 +3068,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2113,7 +3132,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Delete a single project.",
             "content": {
               "application/json": {
@@ -2123,26 +3142,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -2152,11 +3161,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2188,7 +3225,7 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Fetched a single farm.",
             "content": {
               "application/json": {
@@ -2198,26 +3235,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -2227,11 +3254,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2407,26 +3462,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -2436,11 +3481,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2472,7 +3545,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "Delete a single farm.",
             "content": {
               "application/json": {
@@ -2482,26 +3555,16 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "Method Not Allowed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Method not allowed",
-                  "internal_code": "405"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
@@ -2511,11 +3574,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2616,30 +3707,58 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
           },
           "500": {
-            "description": "Sever error",
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Internal Server Error",
-                  "internal_code": "Server Error"
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2740,30 +3859,58 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
           },
           "500": {
-            "description": "Sever error",
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Internal Server Error",
-                  "internal_code": "Server Error"
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }
@@ -2798,30 +3945,58 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "400",
+                  "message": "Bad request"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Not Found",
-                  "internal_code": "404"
+                  "code": "400",
+                  "message": "Bad request"
                 }
               }
             }
           },
           "500": {
-            "description": "Sever error",
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/responses/Error"
+                  "$ref": "#/components/schemas/GeneralError"
                 },
                 "example": {
-                  "message": "Internal Server Error",
-                  "internal_code": "Server Error"
+                  "code": "500",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneralError"
+                },
+                "example": {
+                  "code": "401",
+                  "message": "Unauthorized"
                 }
               }
             }

@@ -15,7 +15,6 @@ const methodOverride = require('method-override');
 const cors = require('cors');
 const helmet = require('helmet');
 const hpp = require('hpp');
-const debug = require('debug')('app:Express');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const config = require('./config')();
@@ -63,7 +62,7 @@ app.use(
   cookieSession({
     name: 'session',
     keys: [config.sessionSecret],
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   }),
 );
 app.use(cookieParser());
@@ -89,17 +88,6 @@ app.use((req, res, next) => {
   return next(error);
 });
 // error handler, send stacktrace only during development
-app.use((err, req, res) => {
-  // customize Joi validation errors
-  if (err.isJoi) {
-    err.message = err.details.map((e) => e.message).join(';');
-    err.status = 400;
-  }
-  if (!isProduction) {
-    debug(errorHelper.getErrorObj(err));
-    return errorHelper.customErrorResponse(res, err);
-  }
-  return errorHelper.customErrorResponse(res, err);
-});
+app.use(errorHelper);
 
 module.exports = app;

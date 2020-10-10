@@ -1,5 +1,5 @@
 const HttpError = require('http-errors');
-const { where } = require('sequelize/types');
+// const debug = require('debug')('app:RefreshTokenController');
 const otherHelper = require('../../helpers/otherhelpers');
 
 function refreshTokenController(RefreshToken, User) {
@@ -25,29 +25,31 @@ function refreshTokenController(RefreshToken, User) {
     }
   };
 
-  const refreshedTokens = async (res, req, next) => {
+  const refreshedTokens = async (req, res, next) => {
     try {
-      const refToken = req.cookies.refreshToken;
+      const { cookies } = req;
+      // debug(cookies);
+      const refToken = cookies.refreshToken;
 
       const oldToken = await getRefreshToken(refToken);
       const { user } = oldToken;
       // replace old refresh token with a new one and save
-      const refreshToken = otherHelper.getRefreshToken(RefreshToken, user);
+      const refreshToken = await otherHelper.generateRefreshToken(RefreshToken, user);
       // revoke token and save ole
       const revoked = true;
       const revokedAt = Date.now();
       await RefreshToken.update({
         revoked,
         revokedAt,
-        replaceToken: refreshToken,
+        replaceToken: refreshToken.refToken,
       },
       { where: { refToken } });
       // generate new jwt
       const jwtToken = otherHelper.generateJWT(otherHelper.toAuthJSON(user));
       // set cookie
-      otherHelper.setTokenCookie(res, refreshToken);
+      otherHelper.setTokenCookie(res, refreshToken.refToken);
       // return basic details and tokens
-      return otherHelper.sendResponse(res, 200, true, null, null, null, jwtToken);
+      return otherHelper.sendResponse(res, 201, true, null, null, null, jwtToken);
     } catch (error) {
       return next(error);
     }
@@ -60,6 +62,7 @@ function refreshTokenController(RefreshToken, User) {
       if (!refToken) otherHelper.sendResponse(res, 400, false, null, null, 'Token is required', null);
       await getRefreshToken(refToken);
       // revoke token and save
+      if (!req.payload.user || !req.payload.user.roles.includes('admin')) otherHelper.sendResponse(res, 401, false, null, null, 'Unauthorized to revoke this token', null);
       const revoked = true;
       const revokedAt = Date.now();
       await RefreshToken.update({
@@ -67,7 +70,7 @@ function refreshTokenController(RefreshToken, User) {
         revokedAt,
       },
       { where: { refToken } });
-      return otherHelper.sendResponse(res, 200, true, null, null, 'Token revoked', null);
+      return otherHelper.sendResponse(res, 204, true, null, null, 'Token revoked', null);
     } catch (error) {
       return next(error);
     }
@@ -85,13 +88,15 @@ function refreshTokenController(RefreshToken, User) {
         ],
       });
 
-      // return refresh tokens for user
+      //  return refresh tokens for user
       const refreshTokens = await RefreshToken.findAll({ userId: user.id });
       return otherHelper.sendResponse(res, 200, true, refreshTokens, null, 'Tokens fetched successfully', null);
     } catch (error) {
       return next(error);
     }
   };
+  const controller = { refreshedTokens, revokeToken, getRefreshTokens };
+  return controller;
 }
 
 module.exports = refreshTokenController;

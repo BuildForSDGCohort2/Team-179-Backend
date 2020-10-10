@@ -7,7 +7,7 @@ function RolesMiddleware(User) {
       const { id } = req.payload.user;
       const user = await User.findOne({ where: { id } });
 
-      if (user && req.user.roles.indexOf('admin') > -1) {
+      if (user && req.user.roles.includes('admin')) {
         return next();
       }
       return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry ensure you logged in', null);
@@ -22,7 +22,7 @@ function RolesMiddleware(User) {
       const { id } = req.payload.user;
       const user = await User.findOne({ where: { id } });
 
-      if (user && req.user.roles.indexOf('farmer') > -1) {
+      if (user && req.user.roles.includes('farmer')) {
         return next();
       }
       return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry ensure you logged in', null);
@@ -37,7 +37,7 @@ function RolesMiddleware(User) {
       const { id } = req.payload.user;
       const user = await User.findOne({ where: { id } });
 
-      if (user && req.user.roles.indexOf('investor') > -1) {
+      if (user && req.user.roles.includes('investor')) {
         return next();
       }
       return otherHelper.sendResponse(res, 404, false, null, null, 'Sorry ensure you logged in', null);

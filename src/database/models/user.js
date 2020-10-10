@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'comments',
     });
+    User.hasMany(models.RefreshToken, {
+      foreignKey: 'userId',
+      as: 'refreshTokens',
+    });
   };
   return User;
 };

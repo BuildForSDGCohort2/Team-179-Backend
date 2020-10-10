@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const PhoneNumber = require('awesome-phonenumber');
 const jwt = require('jsonwebtoken');
-const { jwtSecret } = require('../appconfigs/config')();
+const { jwtSecret, env } = require('../appconfigs/config')();
 
 const otherHelper = {};
 
@@ -95,7 +95,7 @@ otherHelper.validatePassword = (password, salt, hashedPassword) => {
 otherHelper.generateJWT = (user) => {
   const today = new Date();
   const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
+  expirationDate.setDate(today.getDate() + 1);
 
   return jwt.sign({
     user,
@@ -109,8 +109,8 @@ otherHelper.generateRefreshToken = async (RefreshToken, user) => {
   try {
     // create a refresh token that expires in 7 days
     const token = await RefreshToken.create({
-      token: otherHelper.generateRandomHexString(82),
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refToken: otherHelper.generateRandomHexString(82),
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       createdAt: Date.now(),
     });
     token.setUser(user);
@@ -121,9 +121,11 @@ otherHelper.generateRefreshToken = async (RefreshToken, user) => {
 };
 // create http only cookie with refresh token that expires in 7 days
 otherHelper.setTokenCookie = (res, token) => {
+  const prod = env === 'production';
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    secure: !!prod,
   };
   res.cookie('refreshToken', token, cookieOptions);
 };

@@ -14,7 +14,7 @@ const isEmpty = require('../../helpers/isEmpty');
 const sendMail = require('../../helpers/emailHelper');
 
 function UserController(
-  User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize,
+  User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize, RefreshToken,
 ) {
   const createUser = async (req, res, next) => {
     // checks if the user submits an empty register request
@@ -72,7 +72,11 @@ function UserController(
       sendMail.send(msg);
       // generate authentication token
       const result = otherHelper.toAuthJSON(results);
-      const token = otherHelper.generateJWT(result);
+      // Generate refresh token a authorization token
+      const token = await otherHelper.generateJWT(result);
+      const refreshToken = await otherHelper.generateRefreshToken(RefreshToken, results);
+      // set cookie
+      otherHelper.setTokenCookie(res, refreshToken.refToken);
       return otherHelper.sendResponse(res, 201, true, null, null, 'New user registered successfully', token);
     } catch (err) {
       return next(err);
@@ -184,7 +188,7 @@ function UserController(
         firstName,
         lastName,
         email,
-        roles: (user.roles.indexOf('admin') > -1) ? user.roles : Sequelize.fn('array_append', Sequelize.col('roles'), roles),
+        roles: (user.roles.includes('admin')) ? user.roles : Sequelize.fn('array_append', Sequelize.col('roles'), roles),
         updatedAt: new Date(),
       };
       const updateProfie = {
@@ -341,19 +345,38 @@ function UserController(
         return otherHelper.sendResponse(res, 400, true, null, null, 'Email or password is invalid', null);
       }
       const result = otherHelper.toAuthJSON(user);
+      // Generate refresh token a authorization token
       const token = otherHelper.generateJWT(result);
+      const refreshToken = await otherHelper.generateRefreshToken(RefreshToken, user);
+      // debug(refreshToken);
+      // set cookie
+      otherHelper.setTokenCookie(res, refreshToken.refToken);
       return otherHelper.sendResponse(res, 201, true, null, null, 'Logged in successfully', token);
     } catch (error) {
       return next(error);
     }
   };
-  const googleLogin = (req, res) => {
-    const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
-    return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+  const googleLogin = async (req, res, next) => {
+    try {
+      const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
+      const refreshToken = await otherHelper.getRefreshToken(RefreshToken, req.user);
+      // set cookie
+      otherHelper.setTokenCookie(res, refreshToken.refToken);
+      return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+    } catch (error) {
+      return next(error);
+    }
   };
-  const facebookLogin = (req, res) => {
-    const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
-    return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+  const facebookLogin = async (req, res, next) => {
+    try {
+      const token = otherHelper.generateJWT(otherHelper.toAuthJSON(req.user));
+      const refreshToken = await otherHelper.getRefreshToken(RefreshToken, req.user);
+      // set cookie
+      otherHelper.setTokenCookie(res, refreshToken.refToken);
+      return otherHelper.sendResponse(res, 201, true, null, null, 'New user logged in successfully', token);
+    } catch (error) {
+      return next(error);
+    }
   };
   const Verifymail = async (req, res, next) => {
     try {
