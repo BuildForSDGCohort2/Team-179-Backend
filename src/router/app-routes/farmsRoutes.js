@@ -2,6 +2,7 @@ const express = require('express');
 const farmController = require('../../modules/farm/farmController');
 const auth = require('../../middleware/auth');
 const fileUpload = require('../../helpers/upload')('public/uploads/');
+const rolesMiddleware = require('../../middleware/rolesMiddleware');
 
 function farmRoutes(Farm, Location, User) {
   const router = express.Router();
@@ -13,7 +14,7 @@ function farmRoutes(Farm, Location, User) {
     updateFarms,
   } = farmController(Farm, Location, User);
   const { uploader } = fileUpload;
-
+  const { isAdmin } = rolesMiddleware(User);
   /**
    * @route POST api/farm/create-farm
    * @description create farm route
@@ -40,7 +41,7 @@ function farmRoutes(Farm, Location, User) {
   * @description get farm list
   * @access Private
  */
-  router.route('/farms/lists').get(auth, findAllFarms);
+  router.route('/farms/lists').get(auth, isAdmin, findAllFarms);
   /**
    * @route Put /farm/delete
    * @description Delete farm

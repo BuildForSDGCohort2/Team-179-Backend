@@ -3,14 +3,17 @@ const passport = require('passport');
 const userController = require('../../modules/users/userController');
 const auth = require('../../middleware/auth');
 const fileUpload = require('../../helpers/upload')('public/uploads/');
+const rolesMiddleware = require('../../middleware/rolesMiddleware');
+const refreshTokenController = require('../../modules/auth/refreshToken');
 
 function userRoutes(
-  User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+  User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize, RefreshToken,
 ) {
   const router = express.Router();
   const {
     createUser,
-    findOneUser,
+    findUserLoggedIn,
+    findUserProfile,
     createProfile,
     updateProfile,
     findAllUsers,
@@ -24,9 +27,15 @@ function userRoutes(
     changePassword,
     deleteUser,
   } = userController(
-    User, Role, Profile, RoleAuth, Farm, Location, Project, ProjectFavs, ProjectComments,
+    User, Profile, Farm, Location, Project, ProjectFavs, ProjectComments, Sequelize, RefreshToken,
   );
+  const { isAdmin } = rolesMiddleware(User);
   const { uploader } = fileUpload;
+  const {
+    refreshedTokens,
+    revokeToken,
+    getRefreshTokens,
+  } = refreshTokenController(RefreshToken, User);
 
   /**
    * @route POST api/user/register
@@ -51,17 +60,22 @@ function userRoutes(
 
   /**
    * @route Put api/user/profile
-   * @description get user details
+   * @description get user profile
    * @access Private
   */
-  router.route('/user/profile').get(auth, findOneUser);
-
+  router.route('/user/profile').get(auth, findUserProfile);
+  /**
+   * @route Put api/user/profile
+   * @description get logged in
+   * @access Private
+  */
+  router.route('/user/me').get(auth, findUserLoggedIn);
   /**
    * @route Put api/user/list
    * @description get users list
    * @access Private
   */
-  router.route('/users/list').get(auth, findAllUsers);
+  router.route('/users/list').get(auth, isAdmin, findAllUsers);
 
   /**
    * @route Put /auth/google
@@ -146,6 +160,30 @@ function userRoutes(
    * @access Private
   */
   router.route('/user/delete').delete(auth, deleteUser);
+  /**
+   * @route Put /user/refresh-tokens
+   * @description Refresh tokens
+   * @access Private
+  */
+  router.route('/user/refresh-tokens').post(auth, refreshedTokens);
+  /**
+   * @route Put /user/refresh-token/list
+   * @description Get refresh tokens list
+   * @access Private
+  */
+  router.route('/user/refresh-token/list').get(auth, getRefreshTokens);
+  /**
+   * @route Put /user/refresh-token/revoke
+   * @description Revoke refresh token or logout
+   * @access Private
+  */
+  router.route('/user/refresh-token/revoke').post(auth, revokeToken);
+  /**
+   * @route Put /admin/refresh-token/revoke
+   * @description Revoke refresh token or logout
+   * @access Private
+  */
+  router.route('/admin/refresh-token/revoke').post(auth, isAdmin, revokeToken);
   return router;
 }
 

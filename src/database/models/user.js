@@ -7,6 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.TEXT,
+    roles: DataTypes.ARRAY(DataTypes.STRING),
+    accessToken: DataTypes.ARRAY(DataTypes.STRING),
     displayName: DataTypes.STRING,
     providerId: DataTypes.STRING,
     provider: DataTypes.STRING,
@@ -24,12 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'userProfile',
       onDelete: 'CASCADE',
-    });
-    User.belongsToMany(models.Role, {
-      through: 'RolesAuth',
-      as: 'roles',
-      foreignKey: 'userId',
-      otherKey: 'roleId',
     });
     User.hasMany(models.Farm, {
       foreignKey: 'userId',
@@ -50,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.ProjectComments, {
       foreignKey: 'userId',
       as: 'comments',
+    });
+    User.hasMany(models.RefreshToken, {
+      foreignKey: 'userId',
+      as: 'refreshTokens',
     });
   };
   return User;

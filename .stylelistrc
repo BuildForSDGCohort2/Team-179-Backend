@@ -1,6 +1,0 @@
-{
-    "extends": "C:/Users/nguyo/AppData\Roaming/npm/node_modules/stylelint-config-recommended",
-    "rules": {
-       "value-no-vendor-prefix": true
-    }
-}

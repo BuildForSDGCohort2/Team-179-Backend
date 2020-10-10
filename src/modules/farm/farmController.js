@@ -70,17 +70,7 @@ function farmController(Farm, Location, User) {
           as: 'location',
         },
       });
-      // KozB_qfEyUiFBJxDqt0eeA
-      // EW3oe0C_5ECWW9xSClxTXg
-      // PJCVaXbCw0mSG8mRQ8pVhw
-      // XG-p06eEUEaAcg-fwqvgPg
-      // 16Ntf93p5k-A3TwrNUQ2bA
-      // CgKn1oaQSUizC71xz6tqYg
-      // 2AfMApTF8EurzplFxkRnyA
-
-      // Set associations
       fResults.setUser(dbUser);
-
       return otherHelper.sendResponse(res, 201, true, fResults, null, 'Farm created successfully', null);
     } catch (err) {
       return next(err);
@@ -109,8 +99,17 @@ function farmController(Farm, Location, User) {
   };
   // finds farms from the database
   const findAllFarms = async (req, res, next) => {
+    let { offset, limit } = req.query;
     try {
-      const farms = await Farm.findAll({
+      limit = Math.abs(parseInt(limit, 10));
+      offset = Math.abs(parseInt(offset, 10)) * limit;
+      const farms = await Farm.findAndCountAll({
+        where: {},
+        limit,
+        offset,
+        order: [
+          ['createdAt', 'DESC'],
+        ],
         include: [
           {
             model: Location,

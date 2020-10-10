@@ -1,14 +1,14 @@
 const passport = require('passport');
 const {
-  User, Role,
+  User,
 } = require('../../database/models');
 const { GoogleStrategy, FacebookStrategy } = require('./strategies');
 
 // const pipe = (...functions) => (args) => functions.reduce((arg, fn) => fn(arg), args);
 const passportFunction = (app) => {
   // JWTStrategy();
-  GoogleStrategy(User, Role);
-  FacebookStrategy(User, Role);
+  GoogleStrategy(User);
+  FacebookStrategy(User);
   app.use(passport.initialize());
   app.use(passport.session());
   // Stores users in the sesion

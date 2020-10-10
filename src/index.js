@@ -30,3 +30,9 @@ if (!module.parent) {
 module.exports = app;
 
 // process.on('SIGINT', () => process.exit(1));
+// process.on('uncaughtException', (error) => {
+//   errorHandler.handleError(error);
+//   if (!errorHandler.isTrustedError(error)) {
+//     process.exit(1);
+//   }
+//  });

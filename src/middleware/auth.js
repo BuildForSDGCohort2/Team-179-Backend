@@ -4,6 +4,8 @@ const config = require('../appconfigs/config')();
 
 const getTokenFromHeaders = (req) => {
   const { headers: { authorization } } = req;
+  // const { headers: { cookie } } = req;
+  // console.log(cookie);
 
   if ((authorization && authorization.split(' ')[0] === 'Bearer')
   || (authorization && authorization.split(' ')[0] === 'Token')) {
@@ -19,6 +21,10 @@ const auth = (req, res, next) => {
       res.status(401).json({ message: 'Unauthorized' });
     }
     const payload = jwt.verify(token, config.jwtSecret);
+    const expirationDate = new Date(payload.exp * 1000);
+    if (expirationDate < new Date()) {
+      res.status(401).json({ message: 'Login' });
+    }
     req.payload = payload;
     next();
   } catch (error) {

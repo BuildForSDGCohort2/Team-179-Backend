@@ -14,9 +14,6 @@ module.exports = {
       bios: {
         type: Sequelize.STRING,
       },
-      certificateOfConduct: {
-        type: Sequelize.STRING,
-      },
       phoneNumber: {
         type: Sequelize.STRING,
         allowNull: false,
